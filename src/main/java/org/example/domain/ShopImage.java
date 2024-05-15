@@ -19,7 +19,7 @@ public class ShopImage {
     @Column(name = "url", nullable = false)
     private String url;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id", insertable = false, updatable = false)
     private Shop shop;
 
