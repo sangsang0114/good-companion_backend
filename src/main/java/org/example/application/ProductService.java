@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.domain.Product;
 import org.example.domain.Shop;
 import org.example.dto.external.ListPriceStoreProductApiResponseDto;
+import org.example.dto.request.AddProductRequest;
 import org.example.infrastructure.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -56,5 +57,12 @@ public class ProductService {
     public List<Product> getProductsByShopId(String shopId) {
         Shop shop = shopService.getShopById(shopId);
         return productRepository.findShopProductsByShop(shop);
+    }
+
+    @Transactional
+    public Long addProduct(AddProductRequest addProductRequest) {
+        Shop shop = shopService.getShopById(addProductRequest.shopId());
+        Product product = productRepository.save(addProductRequest.toEntity());
+        return product.getId();
     }
 }
