@@ -1,0 +1,22 @@
+spring:
+  profiles:
+    include: API
+  datasource:
+    url: jdbc:mysql://localhost:3308/shopDB?serverTimezone=UTC&autoReconnect=true&rewriteBatchedStatements=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 1234
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 500
+        order_updates: true
+        order_inserts: true
+  batch:
+    jdbc:
+      initialize-schema: always
