@@ -115,4 +115,9 @@ public class ShopService {
     public Shop save(Shop entity) {
         return shopRepository.save(entity);
     }
+
+    @Transactional(readOnly = true)
+    public List<Shop> getShopsByRegionCode(String regionCode) {
+        return shopRepository.findShopsByShopRegion(regionCode);
+    }
 }
