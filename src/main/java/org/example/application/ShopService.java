@@ -1,5 +1,6 @@
 package org.example.application;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.domain.Shop;
 import org.example.dto.external.ListPriceStoreApiResponseDto;
@@ -119,5 +120,12 @@ public class ShopService {
     @Transactional(readOnly = true)
     public List<Shop> getShopsByRegionCode(String regionCode) {
         return shopRepository.findShopsByShopRegion(regionCode);
+    }
+
+    @Transactional(readOnly = true)
+    public Shop getShopById(String shopId) {
+        Shop shop = shopRepository.findById(shopId)
+                .orElseThrow(EntityNotFoundException::new);
+        return shop;
     }
 }

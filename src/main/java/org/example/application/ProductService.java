@@ -1,9 +1,13 @@
 package org.example.application;
 
 import lombok.RequiredArgsConstructor;
+import org.example.domain.Product;
+import org.example.domain.Shop;
 import org.example.dto.external.ListPriceStoreProductApiResponseDto;
+import org.example.infrastructure.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -15,6 +19,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductService {
     private final WebClient.Builder webClientBuilder;
+    private final ShopService shopService;
+    private final ProductRepository productRepository;
 
     private final String BASE_URL = "http://openAPI.seoul.go.kr:8088";
     @Value("${seoul.key}")
@@ -46,4 +52,9 @@ public class ProductService {
         return results;
     }
 
+    @Transactional(readOnly = true)
+    public List<Product> getProductsByShopId(String shopId) {
+        Shop shop = shopService.getShopById(shopId);
+        return productRepository.findShopProductsByShop(shop);
+    }
 }
