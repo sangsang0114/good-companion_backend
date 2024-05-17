@@ -15,4 +15,11 @@ public class ShopImageService {
     public ShopImage save(ShopImage shopImage) {
         return shopImageRepository.save(shopImage);
     }
+
+    @Transactional(readOnly = true)
+    public String getShopImageUrlByShopId(String shopId) {
+        ShopImage shopImage = shopImageRepository.findByShopId(shopId)
+                .orElse(null);
+        return shopImage == null ? null : shopImage.getUrl();
+    }
 }
