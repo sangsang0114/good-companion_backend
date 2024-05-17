@@ -4,6 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.domain.Shop;
 import org.example.dto.external.ListPriceStoreApiResponseDto;
+import org.example.dto.response.NearbyShopInfoResponse;
+import org.example.infrastructure.repository.ShopLocationRepository;
 import org.example.infrastructure.repository.ShopRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.util.regex.Pattern;
 public class ShopService {
     private final ShopRepository shopRepository;
     private final WebClient.Builder webclientBuilder;
+    private final ShopLocationRepository shopLocationRepository;
 
     private final String BASE_URL = "http://openAPI.seoul.go.kr:8088";
 
@@ -127,5 +130,12 @@ public class ShopService {
         Shop shop = shopRepository.findById(shopId)
                 .orElseThrow(EntityNotFoundException::new);
         return shop;
+    }
+
+    @Transactional(readOnly = true)
+    public List<NearbyShopInfoResponse> getShopsByCoordinate(String latitude, String longitude, String radius) {
+        List<NearbyShopInfoResponse> responses = shopLocationRepository.findNearbyShopLocations(
+                Double.valueOf(latitude), Double.valueOf(longitude), Double.parseDouble(radius));
+        return responses;
     }
 }

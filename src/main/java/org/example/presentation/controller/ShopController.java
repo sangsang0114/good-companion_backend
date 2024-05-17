@@ -3,11 +3,9 @@ package org.example.presentation.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.application.ShopService;
 import org.example.domain.Shop;
+import org.example.dto.response.NearbyShopInfoResponse;
 import org.example.dto.response.ShopInfoResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,5 +19,12 @@ public class ShopController {
     public List<ShopInfoResponse> findShopsByRegionCode(@PathVariable String regionCode) {
         List<Shop> shops = shopService.getShopsByRegionCode(regionCode);
         return shops.stream().map(ShopInfoResponse::new).toList();
+    }
+
+    @GetMapping("/")
+    public List<NearbyShopInfoResponse> findNearbyShop(@RequestParam("latitude") String latitude,
+                                                       @RequestParam("longitude") String longitude,
+                                                       @RequestParam("radius") String radius) {
+        return shopService.getShopsByCoordinate(latitude, longitude, radius);
     }
 }
