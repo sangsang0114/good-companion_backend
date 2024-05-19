@@ -1,15 +1,25 @@
 package org.example.application;
 
-import jakarta.persistence.EntityNotFoundException;
+
 import lombok.RequiredArgsConstructor;
 import org.example.domain.Shop;
+import org.example.dto.external.GeoCoderResultDto;
 import org.example.dto.external.ListPriceStoreApiResponseDto;
+import org.example.dto.request.AddShopRequest;
+import org.example.dto.response.BestShopResponse;
 import org.example.dto.response.NearbyShopInfoResponse;
+import org.example.dto.response.ShopDetailResponse;
+import org.example.event.NewShopAddedEvent;
+import org.example.exception.BadRequestException;
+import org.example.exception.ErrorCode;
+import org.example.exception.NotFoundException;
 import org.example.infrastructure.repository.ShopLocationRepository;
 import org.example.infrastructure.repository.ShopRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -24,14 +34,20 @@ import java.util.regex.Pattern;
 public class ShopService {
     private final ShopRepository shopRepository;
     private final WebClient.Builder webclientBuilder;
-    private final ShopLocationRepository shopLocationRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     private final String BASE_URL = "http://openAPI.seoul.go.kr:8088";
+    private final ShopLocationService shopLocationService;
+    private final AttachmentService attachmentService;
+    private final ShopImageService shopImageService;
+    private final ShopSectorService shopSectorService;
 
     @Value("${seoul.key}")
     private String KEY;
     private final String RETURN_TYPE = "json";
     private final String SERVICE_NAME = "ListPriceModelStoreService";
+    private final ShopLocationRepository shopLocationRepository;
+    private final String DOMAIN = "http://localhost:8080/api/v1/attachment/";
 
     public List<ListPriceStoreApiResponseDto.ListPriceStoreApiInfo> loadShopInfo() {
         int startIndex = 1;
@@ -121,6 +137,36 @@ public class ShopService {
     }
 
     @Transactional(readOnly = true)
+    public List<NearbyShopInfoResponse> getShopsByCoordinate(String latitude, String longitude, String radius) {
+        List<NearbyShopInfoResponse> responses = shopLocationRepository.findNearbyShopLocations(
+                Double.valueOf(latitude), Double.valueOf(longitude), Double.parseDouble(radius)).stream().map(response -> {
+            if (response.getImgUrl() == null) {
+                Long index = attachmentService.getFileIndicesByServiceNameAndTarget("Shop", Long.parseLong(response.getId()))
+                        .get(0);
+                response.setImgUrl("http://localhost:8080/api/v1/attachment/" + index);
+            }
+            return response;
+        }).toList();
+        return responses;
+    }
+
+    @Transactional
+    public void addShop(AddShopRequest addShopRequest) {
+        GeoCoderResultDto resultDto = shopLocationService.getCoordinateAndRegionId(addShopRequest.address());
+        String shopId = addShopRequest.id();
+        if (resultDto == null)
+            throw new BadRequestException(ErrorCode.INVALID_ADDRESS);
+        String refinedAddress = resultDto.refinedAddress();
+
+        List<MultipartFile> files = addShopRequest.files();
+        attachmentService.uploadFile(files, "Shop", Long.parseLong(shopId));
+        shopRepository.save(addShopRequest.toEntity(refinedAddress));
+        shopLocationService.save(resultDto.toEntity(shopId));
+
+        eventPublisher.publishEvent(new NewShopAddedEvent(this, addShopRequest));
+    }
+
+    @Transactional(readOnly = true)
     public List<Shop> getShopsByRegionCode(String regionCode) {
         return shopRepository.findShopsByShopRegion(regionCode);
     }
@@ -128,14 +174,32 @@ public class ShopService {
     @Transactional(readOnly = true)
     public Shop getShopById(String shopId) {
         Shop shop = shopRepository.findById(shopId)
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new NotFoundException(ErrorCode.SHOP_NOT_FOUND));
         return shop;
     }
 
     @Transactional(readOnly = true)
-    public List<NearbyShopInfoResponse> getShopsByCoordinate(String latitude, String longitude, String radius) {
-        List<NearbyShopInfoResponse> responses = shopLocationRepository.findNearbyShopLocations(
-                Double.valueOf(latitude), Double.valueOf(longitude), Double.parseDouble(radius));
-        return responses;
+    public ShopDetailResponse getShopDetailByShopId(String shopId) {
+        Shop shop = getShopById(shopId);
+
+        List<String> imgUrls = new ArrayList<>();
+        String sectorName = shopSectorService.getSectorNameByID(shop.getShopSector());
+        if (shopId.startsWith("0")) { //공공데이터의 가게
+            String imgUrl = shopImageService.getShopImageUrlByShopId(shopId);
+            if (imgUrl != null)
+                imgUrls.add(imgUrl);
+        }
+        //프로그램의 가게 + 공공데이터에 추가로 넣은 이미지
+        List<Long> attachmentIds = attachmentService.getFileIndicesByServiceNameAndTarget(
+                "Shop", Long.parseLong(shopId));
+        attachmentIds.forEach(attachmentId -> imgUrls.add(DOMAIN + attachmentId));
+
+        return ShopDetailResponse.toDto2(shop, sectorName, imgUrls);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BestShopResponse> findBestRecommendedShopPerSector() {
+        List<Shop> shops = shopRepository.findBestRecommendedShopPerSector();
+        return shops.stream().map(shop -> BestShopResponse.toDto(shop, null)).toList();
     }
 }

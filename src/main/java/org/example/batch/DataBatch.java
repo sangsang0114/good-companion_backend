@@ -2,10 +2,7 @@ package org.example.batch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.application.ProductService;
-import org.example.application.ShopImageService;
-import org.example.application.ShopLocationService;
-import org.example.application.ShopService;
+import org.example.application.*;
 import org.example.domain.Shop;
 import org.example.dto.external.GeoCoderResultDto;
 import org.example.dto.external.ListPriceStoreApiResponseDto;
@@ -35,6 +32,7 @@ public class DataBatch {
     private final ShopImageService shopImageService;
     private final ProductRepository productRepository;
     private final ProductService productService;
+    private final FranchiseService franchiseService;
 
     @Bean
     public Job loadShopJob(JobRepository jobRepository, Step loadShopStep) {
@@ -65,10 +63,15 @@ public class DataBatch {
                 }
                 validIds.add(info.getId());
 
+                String x = geoCoderResultDto.longitude();
+                String y = geoCoderResultDto.latitude();
+                String zipCode = shopLocationService.getZipcode(x, y);
+                Integer isFranchise = franchiseService.isFranchise(zipCode, info.getName()) ? 1 : 0;
+
                 String regionId = geoCoderResultDto.regionId().substring(0, 5);
                 String refinedAddress = geoCoderResultDto.refinedAddress();
                 String businessHours = shopService.extractBusinessHours(info.getInfo());
-                Shop shop = shopService.save(info.toShopEntity(regionId, refinedAddress, businessHours));
+                Shop shop = shopService.save(info.toShopEntity2(regionId, refinedAddress, businessHours, zipCode, isFranchise));
                 shopImageService.save(info.toShopImageEntity());
                 shopLocationService.save(geoCoderResultDto.toEntity(shop.getId()));
             }

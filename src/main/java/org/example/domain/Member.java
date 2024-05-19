@@ -42,6 +42,9 @@ public class Member extends BaseTime implements UserDetails {
     @Column(name = "is_available")
     private Integer isAvailable;
 
+    @Column(name = "fcm_token")
+    private String fcmToken;
+
     @Builder
     public Member(String email, String password, String nickname) {
         this.email = email;

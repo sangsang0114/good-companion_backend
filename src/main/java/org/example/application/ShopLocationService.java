@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.domain.ShopLocation;
 import org.example.dto.external.GeoCoderApiResponseDto;
 import org.example.dto.external.GeoCoderResultDto;
+import org.example.dto.external.ReverseGeoCoderApiResponseDto;
 import org.example.dto.response.ShopLocationResponse;
 import org.example.infrastructure.repository.ShopLocationRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -73,6 +74,45 @@ public class ShopLocationService {
             } else {
                 GeoCoderResultDto resultDto = GeoCoderResultDto.toDto(responseDto);
                 return resultDto;
+            }
+        }
+        return null;
+    }
+
+    private String getRequestUrl2(String point) {
+        return UriComponentsBuilder
+                .fromUriString(BASE_URL)
+                .queryParam("service", SERVICE)
+                .queryParam("request", "getAddress")
+                .queryParam("version", "2.0")
+                .queryParam("crs", "epsg:4326")
+                .queryParam("point", point)
+                .queryParam("zipcode", "true")
+                .queryParam("simple", "true")
+                .queryParam("key", KEY)
+                .queryParam("type", "road")
+                .build()
+                .toUriString();
+    }
+
+    public String getZipcode(String x, String y) {
+        String requestUrl = getRequestUrl2(x + "," + y);
+        WebClient webClient = WebClient.builder()
+                .baseUrl(requestUrl)
+                .build();
+        ReverseGeoCoderApiResponseDto responseDto = webClient.get()
+                .retrieve()
+                .bodyToMono(ReverseGeoCoderApiResponseDto.class)
+                .block();
+
+        if (responseDto != null) {
+            String status = responseDto.getResponse().getStatus();
+            if ("ERROR".equals(status)) {
+                return null;
+            } else if ("NOT_FOUND".equals(status)) {
+                return null;
+            } else {
+                return responseDto.getResponse().getResult().get(0).getZipcode();
             }
         }
         return null;

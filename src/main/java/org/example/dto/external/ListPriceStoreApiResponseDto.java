@@ -83,5 +83,23 @@ public class ListPriceStoreApiResponseDto {
                     .businessHours(businessHours)
                     .build();
         }
+
+        public Shop toShopEntity2(String regionId, String refinedAddress, String businessHours,
+                                  String zipcode, Integer isFranchise) {
+            return Shop.builder()
+                    .id(id)
+                    .name(name)
+                    .shopSector(sectorId)
+                    .address(refinedAddress)
+                    .phone(phone)
+                    .info(info)
+                    .boast(boast)
+                    .shopRegion(regionId)
+                    .recommend(recommend)
+                    .businessHours(businessHours)
+                    .zipcode(zipcode)
+                    .isLocalFranchise(isFranchise)
+                    .build();
+        }
     }
 }

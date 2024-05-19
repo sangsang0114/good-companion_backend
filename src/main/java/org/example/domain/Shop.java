@@ -54,10 +54,16 @@ public class Shop extends BaseTime implements Persistable<String> {
     @Column(name = "recommend")
     private Long recommend;
 
+    @Column(name = "zipcode")
+    private String zipcode;
+
+    @Column(name = "is_local_franchise")
+    private Integer isLocalFranchise = 0;
+
     @Builder
     public Shop(String id, String name, String address, String shopSector,
                 String shopRegion, String boast, String info, String phone,
-                Long recommend, String businessHours) {
+                Long recommend, String businessHours, Integer isLocalFranchise, String zipcode) {
         this.id = id;
         this.name = name;
         this.address = address;
@@ -68,10 +74,40 @@ public class Shop extends BaseTime implements Persistable<String> {
         this.phone = phone;
         this.recommend = recommend;
         this.businessHours = businessHours;
+        this.isLocalFranchise = isLocalFranchise;
+        this.zipcode = zipcode;
     }
 
     @Override
     public boolean isNew() {
         return this.getCreatedAt() == null;
+    }
+
+    public void disableShop() {
+        this.isAvailable = 0;
+    }
+
+    public void enableShop() {
+        this.isAvailable = 1;
+    }
+
+    public void setRateAvg(Double rate) {
+        this.rate = rate;
+    }
+
+    public void editPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void editInfo(String info) {
+        this.info = info;
+    }
+
+    public void editBoast(String boast) {
+        this.boast = boast;
+    }
+
+    public void editBusinessHours(String businessHours) {
+        this.businessHours = businessHours;
     }
 }

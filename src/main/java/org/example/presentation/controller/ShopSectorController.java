@@ -2,6 +2,7 @@ package org.example.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.application.ShopSectorService;
+import org.example.domain.Shop;
 import org.example.domain.ShopSector;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,4 +31,5 @@ public class ShopSectorController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(shopSectors);
     }
+
 }
