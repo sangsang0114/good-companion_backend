@@ -60,10 +60,14 @@ public class Shop extends BaseTime implements Persistable<String> {
     @Column(name = "is_local_franchise")
     private Integer isLocalFranchise = 0;
 
+    @Column(name = "img_url_public")
+    public String imgUrlPublic;
+
     @Builder
     public Shop(String id, String name, String address, String shopSector,
                 String shopRegion, String boast, String info, String phone,
-                Long recommend, String businessHours, Integer isLocalFranchise, String zipcode) {
+                Long recommend, String businessHours, Integer isLocalFranchise, String zipcode,
+                String imgUrlPublic) {
         this.id = id;
         this.name = name;
         this.address = address;
@@ -76,6 +80,7 @@ public class Shop extends BaseTime implements Persistable<String> {
         this.businessHours = businessHours;
         this.isLocalFranchise = isLocalFranchise;
         this.zipcode = zipcode;
+        this.imgUrlPublic = imgUrlPublic;
     }
 
     @Override

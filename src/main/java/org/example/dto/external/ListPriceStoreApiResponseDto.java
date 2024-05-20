@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.domain.Shop;
-import org.example.domain.ShopImage;
 
 
 @Getter
@@ -62,29 +61,7 @@ public class ListPriceStoreApiResponseDto {
         @JsonProperty("SH_RCMN")
         private Long recommend;
 
-        public ShopImage toShopImageEntity() {
-            return ShopImage.builder()
-                    .url(imgUrl)
-                    .shopId(id)
-                    .build();
-        }
-
-        public Shop toShopEntity(String regionId, String refinedAddress, String businessHours) {
-            return Shop.builder()
-                    .id(id)
-                    .name(name)
-                    .shopSector(sectorId)
-                    .address(refinedAddress)
-                    .phone(phone)
-                    .info(info)
-                    .boast(boast)
-                    .shopRegion(regionId)
-                    .recommend(recommend)
-                    .businessHours(businessHours)
-                    .build();
-        }
-
-        public Shop toShopEntity2(String regionId, String refinedAddress, String businessHours,
+        public Shop toShopEntity(String regionId, String refinedAddress, String businessHours,
                                   String zipcode, Integer isFranchise) {
             return Shop.builder()
                     .id(id)
@@ -99,6 +76,7 @@ public class ListPriceStoreApiResponseDto {
                     .businessHours(businessHours)
                     .zipcode(zipcode)
                     .isLocalFranchise(isFranchise)
+                    .imgUrlPublic(imgUrl)
                     .build();
         }
     }

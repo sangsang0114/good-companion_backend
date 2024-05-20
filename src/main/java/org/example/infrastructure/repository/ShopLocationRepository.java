@@ -13,10 +13,9 @@ import java.util.List;
 public interface ShopLocationRepository extends JpaRepository<ShopLocation, String> {
     @Query(value = "SELECT " +
             "new org.example.dto.response.NearbyShopInfoResponse(" +
-            "sl.id, sl.shop.name, sl.shop.address, sl.shop.phone, sl.shop.rate, sl.shop.recommend, sl.latitude, sl.longitude, sl.shop.shopSector, simg.url) " +
+            "sl.id, sl.shop.name, sl.shop.address, sl.shop.phone, sl.shop.rate, sl.shop.recommend, sl.latitude, sl.longitude, sl.shop.shopSector, sl.shop.imgUrlPublic) " +
             "FROM ShopLocation sl " +
-            "LEFT JOIN sl.shop " +
-            "LEFT JOIN ShopImage simg ON simg.shop.id = sl.shop.id " +
+            "JOIN sl.shop " +
             "WHERE 6371 * 2 * ASIN(SQRT(POWER(SIN((sl.latitude - :lat) * PI() / 180 / 2), 2) + " +
             "COS(:lat * PI() / 180) * COS(sl.latitude * PI() / 180) * " +
             "POWER(SIN((sl.longitude - :lng) * PI() / 180 / 2), 2))) <= :radius")

@@ -39,7 +39,6 @@ public class ShopService {
     private final String BASE_URL = "http://openAPI.seoul.go.kr:8088";
     private final ShopLocationService shopLocationService;
     private final AttachmentService attachmentService;
-    private final ShopImageService shopImageService;
     private final ShopSectorService shopSectorService;
 
     @Value("${seoul.key}")
@@ -185,7 +184,7 @@ public class ShopService {
         List<String> imgUrls = new ArrayList<>();
         String sectorName = shopSectorService.getSectorNameByID(shop.getShopSector());
         if (shopId.startsWith("0")) { //공공데이터의 가게
-            String imgUrl = shopImageService.getShopImageUrlByShopId(shopId);
+            String imgUrl = shop.getImgUrlPublic();
             if (imgUrl != null)
                 imgUrls.add(imgUrl);
         }
