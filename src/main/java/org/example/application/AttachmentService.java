@@ -28,8 +28,10 @@ public class AttachmentService {
     private final String PATH = "C:\\DEV\\";
 
     @Transactional
-    public void uploadFile(List<MultipartFile> fileList, String serviceName, Long serviceTarget) {
-        if (fileList == null || fileList.isEmpty()) return;
+    public String uploadFile(List<MultipartFile> fileList, String serviceName, Long serviceTarget) {
+        StringBuilder imgUrl = new StringBuilder("http://localhost:8080/api/v1/attachment/");
+        int idx = 0;
+        if (fileList == null || fileList.isEmpty()) return null;
         try {
             for (MultipartFile multipartFile : fileList) {
                 String originalFileName = multipartFile.getOriginalFilename();
@@ -49,11 +51,14 @@ public class AttachmentService {
                         .serviceName(serviceName)
                         .serviceTarget(serviceTarget)
                         .build();
-                attachmentRepository.save(attachment);
+                Long id = attachmentRepository.save(attachment).getId();
+                if (idx == 0) imgUrl.append(id);
+                ++idx;
             }
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+        return imgUrl.toString();
     }
 
     @Transactional(readOnly = true)
