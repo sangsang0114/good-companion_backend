@@ -2,7 +2,9 @@ package org.example.application;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.application.redis.DailyShopService;
 import org.example.domain.Shop;
+import org.example.domain.redis.DailyShop;
 import org.example.dto.external.GeoCoderResultDto;
 import org.example.dto.external.ListPriceStoreApiResponseDto;
 import org.example.dto.request.AddShopRequest;
@@ -40,6 +42,7 @@ public class ShopService {
     private final ShopLocationService shopLocationService;
     private final AttachmentService attachmentService;
     private final ShopSectorService shopSectorService;
+    private final DailyShopService dailyShopService;
 
     @Value("${seoul.key}")
     private String KEY;
@@ -140,9 +143,8 @@ public class ShopService {
         List<NearbyShopInfoResponse> responses = shopLocationRepository.findNearbyShopLocations(
                 Double.valueOf(latitude), Double.valueOf(longitude), Double.parseDouble(radius)).stream().map(response -> {
             if (response.getImgUrl() == null) {
-                Long index = attachmentService.getFileIndicesByServiceNameAndTarget("Shop", Long.parseLong(response.getId()))
-                        .get(0);
-                response.setImgUrl("http://localhost:8080/api/v1/attachment/" + index);
+                List<Long> indicies = attachmentService.getFileIndicesByServiceNameAndTarget("Shop", Long.parseLong(response.getId()));
+                if (!indicies.isEmpty()) response.setImgUrl("http://localhost:8080/api/v1/attachment/" + indicies.get(0));
             }
             return response;
         }).toList();
@@ -158,11 +160,11 @@ public class ShopService {
         String refinedAddress = resultDto.refinedAddress();
 
         List<MultipartFile> files = addShopRequest.files();
-        attachmentService.uploadFile(files, "Shop", Long.parseLong(shopId));
+        String firstImageUrl = attachmentService.uploadFile(files, "Shop", Long.parseLong(shopId));
         shopRepository.save(addShopRequest.toEntity(refinedAddress));
         shopLocationService.save(resultDto.toEntity(shopId));
 
-        eventPublisher.publishEvent(new NewShopAddedEvent(this, addShopRequest));
+        eventPublisher.publishEvent(new NewShopAddedEvent(this, addShopRequest, firstImageUrl));
     }
 
     @Transactional(readOnly = true)
@@ -199,6 +201,40 @@ public class ShopService {
     @Transactional(readOnly = true)
     public List<BestShopResponse> findBestRecommendedShopPerSector() {
         List<Shop> shops = shopRepository.findBestRecommendedShopPerSector();
-        return shops.stream().map(shop -> BestShopResponse.toDto(shop, null)).toList();
+        return shops.stream().map(shop -> {
+            if (shop.getId().startsWith("0")) {
+                BestShopResponse bs = BestShopResponse.toDto(shop, shop.getImgUrlPublic());
+                return bs;
+            } else {
+                List<Long> indicies = attachmentService.getFileIndicesByServiceNameAndTarget("Shop", Long.parseLong(shop.getId()));
+                if (indicies.isEmpty()) return null;
+                Long id = indicies.get(0);
+                BestShopResponse bs = BestShopResponse.toDto(shop, "http://localhost:8080/api/v1/attachment/" + id);
+                return bs;
+            }
+        }).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<DailyShop> fetchDailyShop() {
+        List<DailyShop> shops = shopRepository.getRandomThreeShops()
+                .stream().map(shop -> {
+                    String imgUrl = shop.getImgUrlPublic();
+                    if (imgUrl == null) {
+                        Long index = attachmentService.getFileIndicesByServiceNameAndTarget
+                                        ("Shop", Long.parseLong(shop.getId()))
+                                .get(0);
+                        imgUrl = "http://localhost:8080/api/v1/attachment/" + index;
+                    }
+                    return DailyShop.builder()
+                            .phone(shop.getPhone())
+                            .name(shop.getName())
+                            .address(shop.getAddress())
+                            .shopId(shop.getId())
+                            .imgUrl(imgUrl)
+                            .build();
+                }).toList();
+        shops.forEach(dailyShopService::saveDailyShop);
+        return shops;
     }
 }

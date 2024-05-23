@@ -18,4 +18,7 @@ public interface ShopRepository extends JpaRepository<Shop, String> {
             ") " +
             "ORDER BY s.shopSector, s.id")
     List<Shop> findBestRecommendedShopPerSector();
+
+    @Query(value = "SELECT * FROM shop s ORDER BY RAND() LIMIT 3", nativeQuery = true)
+    List<Shop> getRandomThreeShops();
 }
