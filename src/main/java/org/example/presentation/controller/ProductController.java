@@ -2,7 +2,6 @@ package org.example.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.application.ProductService;
-import org.example.domain.Product;
 import org.example.dto.request.AddProductRequest;
 import org.example.dto.response.ProductResponse;
 import org.springframework.http.HttpStatus;
@@ -19,10 +18,8 @@ public class ProductController {
 
     @GetMapping("/")
     public ResponseEntity<List<ProductResponse>> findShopProductsByShopId(@RequestParam final String shopId) {
-        List<Product> products = productService.getProductsByShopId(shopId);
-        List<ProductResponse> lists = products.stream().map(product -> ProductResponse.toDto(product)).toList();
         return ResponseEntity.status(HttpStatus.OK)
-                .body(lists);
+                .body(productService.getProductsByShopId(shopId));
     }
 
     @PostMapping("/new")
@@ -30,5 +27,19 @@ public class ProductController {
         Long id = productService.addProduct(addProductRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(id);
+    }
+
+    @PatchMapping("/edit/{id}")
+    public ResponseEntity<Long> modifyProduct(@RequestBody Integer price, @PathVariable Long id) {
+        Long pId = productService.editProduct(id, price);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(pId);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Boolean> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(true);
     }
 }

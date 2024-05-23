@@ -46,7 +46,11 @@ public class Product extends BaseTime implements Persistable<Long> {
         return this.getCreatedAt() == null;
     }
 
-    public void setPrice(Integer price) {
+    public void editPrice(Integer price) {
         this.price = price;
+    }
+
+    public void delete(){
+        this.isAvailable = 0;
     }
 }
