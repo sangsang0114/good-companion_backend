@@ -15,7 +15,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NewShopService {
     private final RedisTemplate<String, NewShop> redisTemplate;
-    private final AttachmentService attachmentService;
 
     public void saveNewShop(NewShop newShop) {
         redisTemplate.opsForValue().set("new_shop:"+newShop.getShopId(), newShop);

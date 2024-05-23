@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-import java.util.List;
-
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @RedisHash(value = "new_shop", timeToLive = 3600)
@@ -20,14 +18,14 @@ public class NewShop {
     private String name;
     private String address;
     private String phone;
-    private List<Long> attachmentIds;
+    private String imgUrl;
 
     @Builder
-    public NewShop(String shopId, String name, String address, String phone, List<Long> attachmentIds) {
+    public NewShop(String shopId, String name, String address, String phone, String imgUrl) {
         this.shopId = shopId;
         this.name = name;
         this.address = address;
         this.phone = phone;
-        this.attachmentIds = attachmentIds;
+        this.imgUrl = imgUrl;
     }
 }

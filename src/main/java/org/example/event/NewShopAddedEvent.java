@@ -7,9 +7,11 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 public class NewShopAddedEvent extends ApplicationEvent {
     private final AddShopRequest dto;
+    private final String firstImgUrl;
 
-    public NewShopAddedEvent(Object source, AddShopRequest dto) {
+    public NewShopAddedEvent(Object source, AddShopRequest dto, String firstImgUrl) {
         super(source);
         this.dto = dto;
+        this.firstImgUrl = firstImgUrl;
     }
 }

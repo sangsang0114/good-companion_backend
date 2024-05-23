@@ -1,8 +1,8 @@
 package org.example.event;
 
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.application.AttachmentService;
 import org.example.application.FcmService;
 import org.example.application.MailService;
 import org.example.application.RegionMarkService;
@@ -19,6 +19,7 @@ public class NewShopAddedListener implements ApplicationListener<NewShopAddedEve
     private final FcmService fcmService;
     private final RegionMarkService regionMarkService;
     private final NewShopService newShopService;
+    private final AttachmentService attachmentService;
 
     @Override
     public void onApplicationEvent(NewShopAddedEvent event) {
@@ -43,6 +44,7 @@ public class NewShopAddedListener implements ApplicationListener<NewShopAddedEve
                 .name(event.getDto().name())
                 .address(event.getDto().address())
                 .phone(event.getDto().phone())
+                .imgUrl(event.getFirstImgUrl())
                 .build();
         newShopService.saveNewShop(newShop);
     }
