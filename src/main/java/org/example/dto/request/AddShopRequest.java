@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public record AddShopRequest(String id, String name, String sectorId, String address,
-                             String regionId, String phone, String boast, String info,
+                             String regionId, String phone, String boast, String info, String businessHours,
                              List<MultipartFile> files, String zipcode, Integer isLocalFranchise) {
     public Shop toEntity(String refinedAddress) {
         return Shop.builder()
@@ -20,6 +20,7 @@ public record AddShopRequest(String id, String name, String sectorId, String add
                 .info(info)
                 .zipcode(zipcode)
                 .isLocalFranchise(isLocalFranchise)
+                .businessHours(businessHours)
                 .build();
     }
 }
