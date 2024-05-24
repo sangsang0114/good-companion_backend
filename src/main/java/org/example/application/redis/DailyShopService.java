@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,12 @@ public class DailyShopService {
 
     public void saveDailyShop(DailyShop dailyShop) {
         redisTemplate.opsForValue().set("daily_shop:" + dailyShop.getShopId(), dailyShop);
+    }
+
+    public void deleteAllDailyShops(){
+        Set<String> keys = redisTemplate.keys("daily_shop:*");
+        if(keys!= null && !keys.isEmpty())
+            redisTemplate.delete(keys);
     }
 
     public List<DailyShop> listDailyShop() {

@@ -234,6 +234,7 @@ public class ShopService {
                             .imgUrl(imgUrl)
                             .build();
                 }).toList();
+        dailyShopService.deleteAllDailyShops();
         shops.forEach(dailyShopService::saveDailyShop);
         return shops;
     }
