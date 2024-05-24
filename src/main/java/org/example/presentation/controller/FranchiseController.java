@@ -21,8 +21,6 @@ public class FranchiseController {
             @RequestParam String zipcode,
             @RequestParam String shopName
     ) {
-        System.out.println(zipcode);
-        System.out.println(shopName);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(franchiseService.getFranchiseByZipCodeAndShopName(zipcode, shopName));
     }
