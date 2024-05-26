@@ -1,10 +1,12 @@
 package org.example.application;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.domain.Member;
 import org.example.domain.RegionMark;
+import org.example.dto.request.RegionMarkRequest;
+import org.example.dto.response.RegionNotificationTargetResponse;
 import org.example.infrastructure.repository.RegionMarkRepository;
-import org.example.dto.request.AddRegionMarkRequest;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -16,13 +18,23 @@ public class RegionMarkService {
     private final RegionMarkRepository regionMarkRepository;
     private final MemberService memberService;
 
+    public List<String> getRegionMarkIdsByMember(Principal principal) {
+        String email = principal.getName();
+        Member member = memberService.findByEmail(email);
+        List<RegionMark> regionMarks = regionMarkRepository.findRegionMarksByMember(member);
 
-    public Long addRegionMark(AddRegionMarkRequest regionMarkRequest, Principal principal) {
+        return regionMarks.stream().map(RegionMark::getRegionId).toList();
+    }
+
+    public void editRegionMark(RegionMarkRequest regionMarkRequest, Principal principal) {
         Member member = memberService.findByEmail(principal.getName());
-        RegionMark regionMark = regionMarkRepository.save(
-                regionMarkRequest.toEntity(member)
-        );
-        return regionMark.getId();
+        if (regionMarkRequest.isAdd()) {
+            regionMarkRepository.save(regionMarkRequest.toEntity(member));
+        } else {
+            RegionMark regionMark = regionMarkRepository.findRegionMarkByMemberIdAndRegionId(member.getId(), regionMarkRequest.regionId())
+                    .orElseThrow(() -> new EntityNotFoundException("Region mark not found"));
+            regionMarkRepository.delete(regionMark);
+        }
     }
 
     public List<String> getEmailsByRegionId(String regionId) {
@@ -30,11 +42,12 @@ public class RegionMarkService {
         return emails;
     }
 
-    public Boolean removeRegionMark(String regionId, Principal principal) {
-        Member member = memberService.findByEmail(principal.getName());
-        RegionMark regionMark = regionMarkRepository.findRegionMarkByMemberIdAndRegionId(member.getId(), regionId)
-                .orElseThrow(() -> new RuntimeException("Region mark not found"));
-        regionMarkRepository.delete(regionMark);
-        return true;
+    public RegionNotificationTargetResponse getFcmTokensAndEmailsByRegionId(String regionId) {
+        List<String> tokens = regionMarkRepository.findFcmTokensByRegionId(regionId);
+        List<String> emails = regionMarkRepository.findEmailsByRegionId(regionId);
+        return RegionNotificationTargetResponse.builder()
+                .fcmTokens(tokens)
+                .emails(emails)
+                .build();
     }
 }

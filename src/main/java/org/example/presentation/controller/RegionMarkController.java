@@ -2,13 +2,16 @@ package org.example.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.application.RegionMarkService;
-import org.example.dto.request.AddRegionMarkRequest;
-import org.example.dto.request.RegionIdRequest;
+import org.example.dto.request.RegionMarkRequest;
+import org.example.dto.response.RegionNotificationTargetResponse;
+import org.example.exception.ErrorCode;
+import org.example.exception.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/regionMark")
@@ -16,19 +19,25 @@ import java.security.Principal;
 public class RegionMarkController {
     private final RegionMarkService regionMarkService;
 
-    @PostMapping("/add")
-    public ResponseEntity<Long> addMark(@RequestBody AddRegionMarkRequest regionMarkRequest,
-                                        Principal principal) {
-        Long id = regionMarkService.addRegionMark(regionMarkRequest, principal);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(id);
+    @GetMapping("/")
+    public ResponseEntity<List<String>> findRegionMarkIdsByEmail(Principal principal) {
+        if (principal == null) throw new UnauthorizedException(ErrorCode.FORBIDDEN_CLIENT);
+        List<String> regionIds = regionMarkService.getRegionMarkIdsByMember(principal);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(regionIds);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<Boolean> removeMark(@RequestBody RegionIdRequest request, Principal principal) {
-        System.out.println(request.region());
-        Boolean response = regionMarkService.removeRegionMark(request.region(), principal);
+    @PostMapping("/edit")
+    public ResponseEntity<Boolean> editMark(@RequestBody RegionMarkRequest regionMarkRequest,
+                                        Principal principal) {
+        regionMarkService.editRegionMark(regionMarkRequest, principal);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(response);
+                .body(true);
+    }
+
+    @GetMapping("/target-list")
+    public ResponseEntity<RegionNotificationTargetResponse> listTargets(Principal principal) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(regionMarkService.getFcmTokensAndEmailsByRegionId("11290"));
     }
 }
