@@ -6,6 +6,7 @@ import org.example.domain.Notice;
 import org.example.dto.request.AddNoticeRequest;
 import org.example.dto.response.ListNoticeResponse;
 import org.example.dto.response.NoticeDetailResponse;
+import org.example.dto.response.NoticePageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +22,13 @@ public class NoticeController {
     private final NoticeService noticeService;
 
     @GetMapping("/")
-    public ResponseEntity<List<ListNoticeResponse>> listNotices(
+    public ResponseEntity<NoticePageResponse> listNotices(
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "0") int page) {
-        Page<Notice> notices = noticeService.listNotices(page, size);
-        List<ListNoticeResponse> response = notices.stream().map(ListNoticeResponse::toDto).toList();
+        Page<Notice> noticePage = noticeService.listNotices(page, size);
+        List<ListNoticeResponse> noticeList = noticePage.stream().map(ListNoticeResponse::toDto).toList();
         return ResponseEntity.status(HttpStatus.OK)
-                .body(response);
+                .body(NoticePageResponse.toDto(noticeList, noticePage));
     }
 
     @GetMapping("/{id}")
