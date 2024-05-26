@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.example.application.ShopService;
 import org.example.domain.Shop;
 import org.example.dto.request.AddShopRequest;
-import org.example.dto.response.BestShopResponse;
-import org.example.dto.response.NearbyShopInfoResponse;
-import org.example.dto.response.ShopDetailResponse;
-import org.example.dto.response.ShopInfoResponse;
+import org.example.dto.response.*;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -30,6 +29,19 @@ public class ShopController {
                                                        @RequestParam("longitude") String longitude,
                                                        @RequestParam("radius") String radius) {
         return shopService.getShopsByCoordinate(latitude, longitude, radius);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<ShopPageResponse> listShops(
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "0") int page) {
+        Page<Shop> shopPage = shopService.findAllShops(page, size);
+        List<ShopListResponse> shopList = shopPage.getContent()
+                .stream().map(ShopListResponse::toDto)
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ShopPageResponse.toDto(shopList, shopPage));
     }
 
     @PostMapping("/register")
