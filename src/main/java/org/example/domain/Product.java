@@ -2,6 +2,9 @@ package org.example.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.domain.Persistable;
 
 @Table(name = "product")
@@ -9,6 +12,9 @@ import org.springframework.data.domain.Persistable;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(callSuper = false)
+@DynamicInsert
+@SQLRestriction("is_available = 1")
+@SQLDelete(sql = "UPDATE shopdb.product SET shopdb.product.is_available = 0 WHERE id = ?")
 public class Product extends BaseTime implements Persistable<Long> {
     @Id
     @Column(name = "id", updatable = false)
@@ -48,9 +54,5 @@ public class Product extends BaseTime implements Persistable<Long> {
 
     public void editPrice(Integer price) {
         this.price = price;
-    }
-
-    public void delete(){
-        this.isAvailable = 0;
     }
 }
