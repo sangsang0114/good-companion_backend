@@ -3,11 +3,13 @@ package org.example.presentation.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.application.ProductService;
 import org.example.dto.request.AddProductRequest;
+import org.example.dto.request.ModifyProductRequest;
 import org.example.dto.response.ProductResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -23,15 +25,15 @@ public class ProductController {
     }
 
     @PostMapping("/new")
-    public ResponseEntity<Long> createProduct(@RequestBody AddProductRequest addProductRequest) {
+    public ResponseEntity<Long> createProduct(@ModelAttribute AddProductRequest addProductRequest) {
         Long id = productService.addProduct(addProductRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(id);
     }
 
-    @PatchMapping("/edit/{id}")
-    public ResponseEntity<Long> modifyProduct(@RequestBody Integer price, @PathVariable Long id) {
-        Long pId = productService.editProduct(id, price);
+    @PatchMapping("/edit")
+    public ResponseEntity<Long> modifyProduct(@ModelAttribute ModifyProductRequest modifyProductRequest) throws IOException {
+        Long pId = productService.editProduct(modifyProductRequest);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(pId);
     }

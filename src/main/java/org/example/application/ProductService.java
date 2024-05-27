@@ -5,6 +5,7 @@ import org.example.domain.Product;
 import org.example.domain.Shop;
 import org.example.dto.external.ListPriceStoreProductApiResponseDto;
 import org.example.dto.request.AddProductRequest;
+import org.example.dto.request.ModifyProductRequest;
 import org.example.dto.response.ProductResponse;
 import org.example.exception.ErrorCode;
 import org.example.exception.NotFoundException;
@@ -12,9 +13,11 @@ import org.example.infrastructure.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,9 +67,12 @@ public class ProductService {
         List<ProductResponse> responses = products.stream().map(product -> {
             List<Long> indices = attachmentService.getFileIndicesByServiceNameAndTarget("Product", product.getId());
             String imgUrl;
-            if (indices.isEmpty()) imgUrl = null;
-            else imgUrl = "http://localhost:8080/api/v1/attachment/" + indices.get(0);
-            return ProductResponse.toDto(product, imgUrl);
+            if (indices.isEmpty()) {
+                return ProductResponse.toDto(product, null, null);
+            } else {
+                imgUrl = "http://localhost:8080/api/v1/attachment/" + indices.get(0);
+                return ProductResponse.toDto(product, imgUrl, indices.get(0));
+            }
         }).toList();
         return responses;
     }
@@ -74,7 +80,9 @@ public class ProductService {
     @Transactional
     public Long addProduct(AddProductRequest addProductRequest) {
         Shop shop = shopService.getShopById(addProductRequest.shopId());
+        List<MultipartFile> files = addProductRequest.files();
         Product product = productRepository.save(addProductRequest.toEntity());
+        if (files != null) attachmentService.uploadFile(files, "Product", product.getId());
         return product.getId();
     }
 
@@ -86,9 +94,16 @@ public class ProductService {
     }
 
     @Transactional
-    public Long editProduct(Long id, Integer price) {
-        Product product = getProductById(id);
-        product.editPrice(price);
+    public Long editProduct(ModifyProductRequest modifyProductRequest) throws IOException {
+        Product product = getProductById(modifyProductRequest.id());
+        product.editPrice(modifyProductRequest.price());
+
+        if (modifyProductRequest.isDeleteImage()) {
+            attachmentService.removeAttachmentById(modifyProductRequest.attachmentId());
+        }
+        if (modifyProductRequest.file() != null) {
+            attachmentService.uploadFile(List.of(modifyProductRequest.file()), "Product", product.getId());
+        }
         return product.getId();
     }
 

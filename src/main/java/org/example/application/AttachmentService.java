@@ -78,8 +78,16 @@ public class AttachmentService {
         return resource;
     }
 
+    @Transactional(readOnly = true)
+    public Attachment getAttachmentById(Long attachmentId) {
+        Attachment attachment = attachmentRepository.findById(attachmentId)
+                .orElseThrow(EntityNotFoundException::new);
+        return attachment;
+    }
+
     @Transactional
-    public void removeAttachmentById(Long attacmentId) throws IOException{
-        return;
+    public void removeAttachmentById(Long attachmentId) throws IOException {
+        Attachment attachment = attachmentRepository.findById(attachmentId).orElseThrow(EntityNotFoundException::new);
+        attachmentRepository.delete(attachment);
     }
 }

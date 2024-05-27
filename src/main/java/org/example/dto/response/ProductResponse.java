@@ -15,9 +15,13 @@ public class ProductResponse {
     private String name;
     private Integer price;
     private String imgUrl;
+    private Long id;
+    private Long attachmentId;
 
-    public static ProductResponse toDto(Product product, String imgUrl) {
+    public static ProductResponse toDto(Product product, String imgUrl, Long attachmentId) {
         return ProductResponse.builder()
+                .id(product.getId())
+                .attachmentId(attachmentId)
                 .name(product.getName())
                 .price(product.getPrice())
                 .imgUrl(imgUrl)
