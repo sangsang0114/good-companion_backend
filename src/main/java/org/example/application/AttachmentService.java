@@ -69,7 +69,7 @@ public class AttachmentService {
     }
 
     @Transactional(readOnly = true)
-    public Resource getAttachmentById(Long attachmentId, HttpHeaders headers) throws IOException {
+    public Resource getImageByAttachmentId(Long attachmentId, HttpHeaders headers) throws IOException {
         String savedFileName = attachmentRepository.findById(attachmentId)
                 .orElseThrow(EntityNotFoundException::new).getStoredFilename();
         FileSystemResource resource = new FileSystemResource(PATH + savedFileName);

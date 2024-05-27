@@ -25,7 +25,7 @@ public class AttachmentController {
     @GetMapping("/{id}")
     public ResponseEntity<Resource> getAttachmentById(@PathVariable Long id) throws IOException {
         HttpHeaders headers = new HttpHeaders();
-        Resource resource = attachmentService.getAttachmentById(id, headers);
+        Resource resource = attachmentService.getImageByAttachmentId(id, headers);
         return ResponseEntity.status(HttpStatus.OK)
                 .headers(headers)
                 .body(resource);
