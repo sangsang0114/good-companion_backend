@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.application.ShopService;
 import org.example.domain.Shop;
 import org.example.dto.request.AddShopRequest;
+import org.example.dto.request.ModifyShopRequest;
 import org.example.dto.response.*;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -59,5 +61,12 @@ public class ShopController {
     @GetMapping("/best")
     public List<BestShopResponse> best() {
         return shopService.findBestRecommendedShopPerSector();
+    }
+
+    @PatchMapping("/edit")
+    public ResponseEntity<Boolean> modifyShop(@ModelAttribute ModifyShopRequest shopRequest) throws IOException {
+        shopService.editShop(shopRequest);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(true);
     }
 }

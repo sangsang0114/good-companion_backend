@@ -8,6 +8,7 @@ import org.example.domain.redis.DailyShop;
 import org.example.dto.external.GeoCoderResultDto;
 import org.example.dto.external.ListPriceStoreApiResponseDto;
 import org.example.dto.request.AddShopRequest;
+import org.example.dto.request.ModifyShopRequest;
 import org.example.dto.response.BestShopResponse;
 import org.example.dto.response.NearbyShopInfoResponse;
 import org.example.dto.response.ShopDetailResponse;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -246,5 +248,26 @@ public class ShopService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Shop> shops = shopRepository.findAll(pageable);
         return shops;
+    }
+
+    public void editShop(ModifyShopRequest shopRequest) throws IOException {
+        String shopId = shopRequest.shopId();
+        Shop shop = getShopById(shopId);
+        shop.editBoast(shopRequest.boast());
+        shop.editInfo(shopRequest.info());
+        shop.editPhone(shopRequest.phone());
+        shop.editBusinessHours(shopRequest.businessHours());
+        if (shopRequest.deletedFiles() != null && !shopRequest.deletedFiles().isEmpty()) {
+            List<Long> attachmentIds = shopRequest.deletedFiles().stream()
+                    .map(deletedFile -> Long.parseLong(deletedFile.replaceAll("http://localhost:8080/api/v1/attachment/", ""))).toList();
+
+            for (Long attachmentId : attachmentIds) {
+                attachmentService.removeAttachmentById(attachmentId);
+            }
+        }
+
+        if (shopRequest.newFiles() != null && !shopRequest.newFiles().isEmpty()) {
+            attachmentService.uploadFile(shopRequest.newFiles(), "Shop", Long.parseLong(shopId));
+        }
     }
 }
