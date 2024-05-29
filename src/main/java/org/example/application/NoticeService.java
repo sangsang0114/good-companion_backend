@@ -41,6 +41,11 @@ public class NoticeService {
         Notice notice = noticeRepository.save(request.toEntity(member.getId()));
         List<MultipartFile> files = request.files();
         attachmentService.uploadFile(files, "Notice", notice.getId());
+        
+        if(request.isImportant()){
+            //FCM 전송
+            System.out.println("FCM을 전송합니다.");
+        }
         return notice.getId();
     }
 
