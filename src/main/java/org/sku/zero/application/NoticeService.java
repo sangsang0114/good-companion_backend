@@ -5,10 +5,12 @@ import org.sku.zero.domain.Member;
 import org.sku.zero.domain.Notice;
 import org.sku.zero.dto.request.AddNoticeRequest;
 import org.sku.zero.dto.response.NoticeDetailResponse;
+import org.sku.zero.event.NoticeAddedEvent;
 import org.sku.zero.exception.ErrorCode;
 import org.sku.zero.exception.NotFoundException;
 import org.sku.zero.infrastructure.repository.MemberRepository;
 import org.sku.zero.infrastructure.repository.NoticeRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,7 @@ public class NoticeService {
     private final MemberRepository memberRepository;
     private final AttachmentService attachmentService;
     private final MemberService memberService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Page<Notice> listNotices(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -43,8 +46,7 @@ public class NoticeService {
         attachmentService.uploadFile(files, "Notice", notice.getId());
         
         if(request.isImportant()){
-            //FCM 전송
-            System.out.println("FCM을 전송합니다.");
+            eventPublisher.publishEvent(new NoticeAddedEvent(this, request.title(), null));
         }
         return notice.getId();
     }

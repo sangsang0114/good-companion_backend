@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -107,5 +108,9 @@ public class MemberService {
     public void logout(Principal principal) {
         String email = principal.getName();
         redisTemplate.delete("refreshToken:email:" + email);
+    }
+
+    public List<Member> findMembersByFcmFlagIsTrue() {
+        return memberRepository.findMembersByFcmTokenIsNotNull();
     }
 }
