@@ -250,6 +250,7 @@ public class ShopService {
         return shops;
     }
 
+    @Transactional
     public void editShop(ModifyShopRequest shopRequest) throws IOException {
         String shopId = shopRequest.shopId();
         Shop shop = getShopById(shopId);
