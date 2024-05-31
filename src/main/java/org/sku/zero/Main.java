@@ -1,4 +1,4 @@
-package org.example;
+package org.sku.zero;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
