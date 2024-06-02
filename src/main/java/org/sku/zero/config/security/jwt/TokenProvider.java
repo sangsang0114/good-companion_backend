@@ -43,6 +43,7 @@ public class TokenProvider {
     }
 
     public boolean validToken(String token) {
+        if(token == null || token.isEmpty()) return false;
         try {
             Jwts.parser()
                     .setSigningKey(jwtProperties.getSecretKey())
