@@ -8,8 +8,8 @@ import org.sku.zero.domain.Shop;
 @Builder
 public class BestShopResponse {
     private String shopId;
-    private String shopName;
-    private String shopAddress;
+    private String name;
+    private String address;
     private String boast;
     private String sector;
     private String imgUrl;
@@ -17,8 +17,8 @@ public class BestShopResponse {
     public static BestShopResponse toDto(Shop shop, String imgUrl) {
         return BestShopResponse.builder()
                 .shopId(shop.getId())
-                .shopName(shop.getName())
-                .shopAddress(shop.getAddress())
+                .name(shop.getName())
+                .address(shop.getAddress())
                 .boast(shop.getBoast())
                 .sector(shop.getShopSector())
                 .imgUrl(imgUrl)
