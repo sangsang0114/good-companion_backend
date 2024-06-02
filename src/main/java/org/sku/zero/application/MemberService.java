@@ -12,6 +12,7 @@ import org.sku.zero.exception.NotFoundException;
 import org.sku.zero.exception.UnauthorizedException;
 import org.sku.zero.infrastructure.repository.MemberRepository;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,13 +25,14 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 public class MemberService {
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
     public Long register(AddMemberRequest request) {
-        Member member = request.toEntity();
+        Member member = request.toEntity(bCryptPasswordEncoder);
         return memberRepository.save(member).getId();
     }
 
@@ -39,9 +41,9 @@ public class MemberService {
         String password = request.password();
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new UnauthorizedException(ErrorCode.LOGIN_FAIL));
-        if (!password.equals(member.getPassword()))
+        if (!bCryptPasswordEncoder.matches(password, member.getPassword()))
             throw new UnauthorizedException(ErrorCode.LOGIN_FAIL);
-        String accessToken = tokenProvider.generateToken(member, Duration.ofMinutes(20), "accessToken");
+        String accessToken = tokenProvider.generateToken(member, Duration.ofHours(3), "accessToken");
         String refreshToken = tokenProvider.generateToken(member, Duration.ofHours(3), "refreshToken");
         redisTemplate.opsForValue().set(
                 "refreshToken:email:" + email,
