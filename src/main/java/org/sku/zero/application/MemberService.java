@@ -20,15 +20,19 @@ import java.security.Principal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
+    private final MailService mailService;
 
     @Transactional
     public Long register(AddMemberRequest request) {
@@ -114,5 +118,64 @@ public class MemberService {
 
     public List<Member> findMembersByFcmFlagIsTrue() {
         return memberRepository.findMembersByFcmTokenIsNotNull();
+    }
+
+    public boolean checkDuplicateByNickname(String nickname) {
+        return memberRepository.existsByNickname(nickname);
+    }
+
+    public Boolean verifyEmail(VerifyEmailRequest request) {
+        int min = 10000000;
+        int max = 99999999;
+        Random random = new Random();
+        int randomNumber = random.nextInt((max - min) + 1) + min;
+        String email = request.email();
+        try {
+            mailService.sendVerifyCodeMail(email, randomNumber + "");
+            redisTemplate.opsForValue().set("email_verification_code:" + email,
+                    randomNumber + "",
+                    Duration.ofMinutes(4));
+        } catch (MessagingException ex) {
+            log.error("인증코드 전송에 실패하였습니다.");
+        }
+        return true;
+    }
+
+    public Boolean verifyCode(String email, String code) {
+        String jsonString = redisTemplate.opsForValue().get("email_verification_code:" + email);
+        if (jsonString == null) return false;
+        return jsonString.equals(code);
+    }
+
+    public String forgotPassword(String email) {
+        String uuid = UUID.randomUUID().toString();
+        log.info(uuid);
+        try {
+            mailService.sendPasswordResetLinkMail(email, uuid);
+            redisTemplate.opsForValue().set("forgot_password:" + email + ":" + uuid, uuid, Duration.ofHours(3));
+        } catch (MessagingException ex) {
+            log.error("인증코드 전송에 실패했습니다");
+        }
+        return uuid;
+    }
+
+    public boolean validateUuid(String email, String uuid) {
+        String id = redisTemplate.opsForValue().get("forgot_password:" + email + ":" + uuid);
+        System.out.println(id);
+        return id != null && id.equals(uuid);
+    }
+
+    @Transactional
+    public Boolean resetPassword(ResetPasswordRequest request) {
+        String email = request.email();
+        String uuid = request.uuid();
+        if (validateUuid(request.email(), request.uuid())) {
+            Member member = findByEmail(request.email());
+            member.updatePassword(bCryptPasswordEncoder.encode(request.password()));
+            redisTemplate.delete("forgot_password:" + email + ":" + uuid);
+            return true;
+        } else {
+            return false;
+        }
     }
 }
