@@ -2,12 +2,17 @@ package org.sku.zero.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.sku.zero.application.RegistrationProposalService;
+import org.sku.zero.domain.RegistrationProposal;
 import org.sku.zero.dto.request.AddRegistrationProposalRequest;
+import org.sku.zero.dto.response.ListProposalResponse;
+import org.sku.zero.dto.response.ProposalPageResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RequestMapping("/api/v1/proposal")
 @RestController
@@ -16,9 +21,14 @@ public class RegistrationProposalController {
     private final RegistrationProposalService registrationProposalService;
 
     @GetMapping("/")
-    public ResponseEntity<String> listProposals() {
+    public ResponseEntity<ProposalPageResponse> listProposals(@RequestParam(defaultValue = "10") int size,
+                                                              @RequestParam(defaultValue = "0") int page) {
+        Page<RegistrationProposal> proposalPage = registrationProposalService.findAll(page, size);
+        List<ListProposalResponse> proposalList = proposalPage.getContent()
+                .stream().map(proposal -> ListProposalResponse.toDto(proposal, proposal.getMember()))
+                .toList();
         return ResponseEntity.status(HttpStatus.OK)
-                .body(null);
+                .body(ProposalPageResponse.toDto(proposalList, proposalPage));
     }
 
     @GetMapping("/{id}")

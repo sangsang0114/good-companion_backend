@@ -13,6 +13,7 @@ public class ListProposalResponse {
     private Long id;
     private String shopName;
     private String memberNickname;
+    private String memberEmail;
     private String status;
     private LocalDateTime createdAt;
 
@@ -22,6 +23,7 @@ public class ListProposalResponse {
                 .id(proposal.getId())
                 .shopName(proposal.getShopName())
                 .memberNickname(member.getNickname())
+                .memberEmail(member.getEmail())
                 .status(proposal.getStatus().name())
                 .createdAt(proposal.getCreatedAt())
                 .build();

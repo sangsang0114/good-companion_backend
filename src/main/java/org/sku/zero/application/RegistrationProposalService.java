@@ -6,6 +6,9 @@ import org.sku.zero.domain.Member;
 import org.sku.zero.domain.RegistrationProposal;
 import org.sku.zero.dto.request.AddRegistrationProposalRequest;
 import org.sku.zero.infrastructure.repository.RegistrationProposalRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,5 +55,11 @@ public class RegistrationProposalService {
                 .orElseThrow(EntityNotFoundException::new);
         registrationProposal.reject();
         return proposalId;
+    }
+
+    public Page<RegistrationProposal> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RegistrationProposal> registrationProposals = registrationProposalRepository.findAll(pageable);
+        return registrationProposals;
     }
 }
