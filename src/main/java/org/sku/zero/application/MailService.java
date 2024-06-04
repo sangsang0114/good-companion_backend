@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sku.zero.dto.request.AddShopRequest;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -37,6 +38,29 @@ public class MailService {
 
         String html = templateEngine.process("newShop", context);
         helper.setText(html, true);
+
+        mailSender.send(message);
+         */
+    }
+
+    @Async
+    public void sendVerifyCodeMail(String to, String verificationCode) throws MessagingException {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("이메일 확인");
+        message.setText(String.format("이메일 검증을 위한 요청 코드는 다음과 같습니다 : %s", verificationCode));
+        message.setFrom("");
+
+        mailSender.send(message);
+    }
+
+    @Async
+    public void sendPasswordResetLinkMail(String email, String uuid) throws MessagingException {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("비밀번호 초기화 링크");
+        message.setText("비밀번호 초기화 링크 : http://localhost:3003/resetPassword/" + email + "/" + uuid);
+        message.setFrom("");
 
         mailSender.send(message);
     }

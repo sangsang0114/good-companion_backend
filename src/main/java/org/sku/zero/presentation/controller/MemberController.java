@@ -2,9 +2,7 @@ package org.sku.zero.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.sku.zero.application.MemberService;
-import org.sku.zero.dto.request.AddMemberRequest;
-import org.sku.zero.dto.request.GetNewAccessTokenRequest;
-import org.sku.zero.dto.request.LoginMemberRequest;
+import org.sku.zero.dto.request.*;
 import org.sku.zero.dto.response.LoginResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +20,13 @@ public class MemberController {
     @GetMapping("/check")
     public ResponseEntity<Boolean> checkExistsMemberById(@RequestParam String email) {
         boolean result = memberService.checkDuplicateByEmail(email);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
+    }
+
+    @GetMapping("/check-nickname")
+    public ResponseEntity<Boolean> checkExistsMemberNickname(@RequestParam String nickname) {
+        boolean result = memberService.checkDuplicateByNickname(nickname);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(result);
     }
@@ -53,5 +58,39 @@ public class MemberController {
         memberService.logout(principal);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(true);
+    }
+
+    @PostMapping("/send-verification-code")
+    public ResponseEntity<Boolean> sendVerificationCode(@RequestBody VerifyEmailRequest request) {
+        memberService.verifyEmail(request);
+        return null;
+//        return ResponseEntity.ok(true);
+    }
+
+    @PostMapping("/verify-code")
+    public ResponseEntity<Boolean> verifyEmailCode(@RequestBody VerifyCodeRequest request) {
+        Boolean result = memberService.verifyCode(request.email(), request.code());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
+    }
+
+    @GetMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(memberService.forgotPassword(email));
+    }
+
+    @GetMapping("/validate-uuid/{email}/{uuid}")
+    public ResponseEntity<Boolean> validateUuid(@PathVariable String email, @PathVariable String uuid) {
+        Boolean result = memberService.validateUuid(email, uuid);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
+    }
+
+    @PatchMapping("/reset-password")
+    public ResponseEntity<Boolean> resetPassword(@RequestBody ResetPasswordRequest request) {
+        Boolean result = memberService.resetPassword(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
     }
 }
