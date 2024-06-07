@@ -55,4 +55,8 @@ public class Notice extends BaseTime {
         this.title = title;
         this.content = content;
     }
+
+    public void increaseViewCount() {
+        ++this.viewCount;
+    }
 }

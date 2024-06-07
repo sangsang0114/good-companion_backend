@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sku.zero.domain.Member;
 import org.sku.zero.domain.Notice;
 import org.sku.zero.dto.request.AddNoticeRequest;
+import org.sku.zero.dto.request.ModifyNoticeRequest;
 import org.sku.zero.dto.response.NoticeDetailResponse;
 import org.sku.zero.event.NoticeAddedEvent;
 import org.sku.zero.exception.ErrorCode;
@@ -55,6 +56,7 @@ public class NoticeService {
     public NoticeDetailResponse getNoticeById(Long id) {
         Notice notice = noticeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOTICE_NOT_FOUND));
+        notice.increaseViewCount();
 
         Member member = memberService.findById(notice.getMemberId());
         List<Long> attachmentIndices = attachmentService.getFileIndicesByServiceNameAndTarget
@@ -65,12 +67,34 @@ public class NoticeService {
     }
 
     @Transactional
-    public Long modifyNotice() {
-        return null;
+    public Long modifyNotice(ModifyNoticeRequest noticeRequest) {
+        Long noticeId = noticeRequest.noticeId();
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new NotFoundException(ErrorCode.NOTICE_NOT_FOUND));
+        notice.editNotice(noticeRequest.title(), noticeRequest.content());
+
+        if (noticeRequest.deletedFiles() != null && !noticeRequest.deletedFiles().isEmpty()) {
+            List<Long> attachmentIds = noticeRequest.deletedFiles().stream()
+                    .map(deletedFile -> Long.parseLong(deletedFile.replaceAll("http://localhost:8080/api/v1/attachment/", "")))
+                    .toList();
+
+            for (Long attachmentId : attachmentIds) {
+                try {
+                    attachmentService.removeAttachmentById(attachmentId);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+
+        if (noticeRequest.newFiles() != null && !noticeRequest.newFiles().isEmpty()) {
+            attachmentService.uploadFile(noticeRequest.newFiles(), "Notice", notice.getId());
+        }
+        return 1L;
     }
 
     @Transactional
     public Boolean removeNotice(Long id) {
-        return null;
+        Notice notice = noticeRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.NOTICE_NOT_FOUND));
+        noticeRepository.delete(notice);
+        return true;
     }
 }

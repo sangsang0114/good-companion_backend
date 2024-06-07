@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sku.zero.application.NoticeService;
 import org.sku.zero.domain.Notice;
 import org.sku.zero.dto.request.AddNoticeRequest;
+import org.sku.zero.dto.request.ModifyNoticeRequest;
 import org.sku.zero.dto.response.ListNoticeResponse;
 import org.sku.zero.dto.response.NoticeDetailResponse;
 import org.sku.zero.dto.response.NoticePageResponse;
@@ -21,7 +22,7 @@ import java.util.List;
 public class NoticeController {
     private final NoticeService noticeService;
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<NoticePageResponse> listNotices(
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "0") int page) {
@@ -46,18 +47,20 @@ public class NoticeController {
                 .body(id);
     }
 
-    @PatchMapping("/edit/{id}")
+    @PatchMapping("")
     public ResponseEntity<Long> updateNotice(
-            @PathVariable Long id,
-            @RequestBody Notice notice,
+            @ModelAttribute ModifyNoticeRequest modifyNoticeRequest,
             Principal principal) {
-        return null;
+        Long result = noticeService.modifyNotice(modifyNoticeRequest);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Long> deleteNotice(
+    public ResponseEntity<Boolean> deleteNotice(
             @PathVariable Long id,
             Principal principal) {
+        Boolean result = noticeService.removeNotice(id);
         return null;
     }
 }
