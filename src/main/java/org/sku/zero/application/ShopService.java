@@ -276,4 +276,8 @@ public class ShopService {
         Pageable pageable = PageRequest.of(page, size);
         return shopRepository.getShopsByNameContaining(keyword, pageable);
     }
+
+    public List<Shop> findAllShops(){
+        return shopRepository.findAll();
+    }
 }

@@ -55,10 +55,13 @@ public class DataBatch {
     public Tasklet loadshopTasklet(JobRepository jobRepository) {
         Set<String> validIds = new HashSet<>();
         return ((contribution, chunkContext) -> {
+            List<Shop> shops = shopService.findAllShops();
+            shops.forEach(shop -> validIds.add(shop.getId()));
             List<ListPriceStoreApiResponseDto.ListPriceStoreApiInfo> dto = shopService.loadShopInfo();
             for (ListPriceStoreApiResponseDto.ListPriceStoreApiInfo info : dto) {
+                //이미 등록되어있는 가게의 경우 스킵
+                if (validIds.contains(info.getId())) continue;
                 GeoCoderResultDto geoCoderResultDto = shopLocationService.getCoordinateAndRegionId(info.getAddress());
-
                 // 유효하지 않은 주소의 경우 별도 처리
                 if (geoCoderResultDto == null) {
                     continue;
