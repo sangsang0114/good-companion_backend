@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -34,6 +35,13 @@ public class ReviewController {
     @GetMapping("/summary")
     public ResponseEntity<List<ReviewResponse>> findSummaryReviewByShopId(@RequestParam String shopId) {
         List<ReviewResponse> responses = reviewService.getSummaryReviewsByShopId(shopId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(responses);
+    }
+
+    @GetMapping("/my-review")
+    public ResponseEntity<List<ReviewResponse>> findReviewByShopIdAndMember(@RequestParam String shopId, Principal principal) {
+        List<ReviewResponse> responses = reviewService.getReviewByShopIdAndMember(shopId, principal);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(responses);
     }

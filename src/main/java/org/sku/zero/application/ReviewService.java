@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.util.List;
 
 @Service
@@ -58,6 +59,24 @@ public class ReviewService {
     public List<ReviewResponse> getSummaryReviewsByShopId(String shopId) {
         Shop shop = shopService.getShopById(shopId);
         List<Review> reviews = reviewRepository.findTop3ByShopOrderByIdDesc(shop);
+        List<ReviewResponse> response = reviews.stream()
+                .map(review -> ReviewResponse.builder()
+                        .id(review.getId())
+                        .score(review.getScore())
+                        .writer(review.getMember().getNickname())
+                        .shopId(review.getShopId())
+                        .comment(review.getComment())
+                        .attachmentIndices(attachmentService.getFileIndicesByServiceNameAndTarget("Review", review.getId()))
+                        .createdAt(review.getCreatedAt())
+                        .build()
+                ).toList();
+        return response;
+    }
+
+    public List<ReviewResponse> getReviewByShopIdAndMember(String shopId, Principal principal) {
+        Shop shop = shopService.getShopById(shopId);
+        Member member = memberService.findByEmail(principal.getName());
+        List<Review> reviews = reviewRepository.findReviewsByShopAndMember(shop, member);
         List<ReviewResponse> response = reviews.stream()
                 .map(review -> ReviewResponse.builder()
                         .id(review.getId())
