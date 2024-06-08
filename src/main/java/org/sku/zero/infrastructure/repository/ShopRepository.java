@@ -23,4 +23,6 @@ public interface ShopRepository extends JpaRepository<Shop, String> {
 
     @Query(value = "SELECT * FROM shop s ORDER BY RAND() LIMIT 3", nativeQuery = true)
     List<Shop> getRandomThreeShops();
+
+    Page<Shop> getShopsByNameContaining(String search, Pageable pageable);
 }

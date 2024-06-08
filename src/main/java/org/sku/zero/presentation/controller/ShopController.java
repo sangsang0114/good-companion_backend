@@ -69,4 +69,18 @@ public class ShopController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(true);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<ShopPageResponse> searchShops(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "0") int page) {
+        Page<Shop> shopPage = shopService.getShopByNameKeyword(keyword, size, page);
+        List<ShopListResponse> shopList = shopPage.getContent()
+                .stream().map(ShopListResponse::toDto)
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ShopPageResponse.toDto(shopList, shopPage));
+    }
 }

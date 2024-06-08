@@ -271,4 +271,9 @@ public class ShopService {
             attachmentService.uploadFile(shopRequest.newFiles(), "Shop", Long.parseLong(shopId));
         }
     }
+
+    public Page<Shop> getShopByNameKeyword(String keyword, int size, int page) {
+        Pageable pageable = PageRequest.of(page, size);
+        return shopRepository.getShopsByNameContaining(keyword, pageable);
+    }
 }
