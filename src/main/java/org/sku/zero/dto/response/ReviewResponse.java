@@ -11,9 +11,10 @@ import java.util.List;
 public class ReviewResponse {
     private Long id;
     private String shopId;
-    private String writer;
+    private Long memberId;
+    private String memberNickname;
     private String comment;
     private Double score;
-    private List<Long> attachmentIndices;
+    private List<String> imgUrls;
     private LocalDateTime createdAt;
 }
