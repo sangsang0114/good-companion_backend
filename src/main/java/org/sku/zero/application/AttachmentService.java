@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sku.zero.domain.Attachment;
 import org.sku.zero.infrastructure.repository.AttachmentRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -25,11 +26,14 @@ import java.util.UUID;
 @Slf4j
 public class AttachmentService {
     private final AttachmentRepository attachmentRepository;
-    private final String PATH = "C:\\DEV\\";
+    @Value("${server.upload_path}")
+    private String PATH;
+    @Value("${server.url}")
+    private String URL;
 
     @Transactional
     public String uploadFile(List<MultipartFile> fileList, String serviceName, Long serviceTarget) {
-        StringBuilder imgUrl = new StringBuilder("http://localhost:8080/api/v1/attachment/");
+        StringBuilder imgUrl = new StringBuilder(URL + "/api/v1/attachment/");
         int idx = 0;
         if (fileList == null || fileList.isEmpty()) return null;
         try {

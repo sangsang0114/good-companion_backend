@@ -8,6 +8,7 @@ import org.sku.zero.domain.Shop;
 import org.sku.zero.dto.request.AddReviewRequest;
 import org.sku.zero.dto.response.ReviewResponse;
 import org.sku.zero.infrastructure.repository.ReviewRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,8 @@ public class ReviewService {
     private final ShopService shopService;
     private final MemberService memberService;
     private final String SERVICE_NAME = "Review";
+    @Value("${server.url}")
+    private String serverUrl;
 
     @Transactional
     public Long addReview(AddReviewRequest requestDto, Authentication authentication) {
@@ -41,17 +44,21 @@ public class ReviewService {
 
     public List<ReviewResponse> getReviewByShopId(String shopId) {
         Shop shop = shopService.getShopById(shopId);
-        List<Review> reviews = reviewRepository.findReviewsByShop(shop);
+        List<Review> reviews = reviewRepository.findTop3ByShopOrderByIdDesc(shop);
         List<ReviewResponse> response = reviews.stream()
-                .map(review -> ReviewResponse.builder()
-                        .id(review.getId())
-                        .score(review.getScore())
-                        .writer(review.getMember().getNickname())
-                        .shopId(review.getShopId())
-                        .comment(review.getComment())
-                        .attachmentIndices(attachmentService.getFileIndicesByServiceNameAndTarget("Review", review.getId()))
-                        .createdAt(review.getCreatedAt())
-                        .build()
+                .map(review -> {
+                            List<Long> indices = attachmentService.getFileIndicesByServiceNameAndTarget("Review", review.getId());
+                            List<String> imgUrls = indices.stream().map(index -> serverUrl + "/api/v1/attachment/" + index).toList();
+                            return ReviewResponse.builder()
+                                    .id(review.getId())
+                                    .score(review.getScore())
+                                    .memberNickname(review.getMember().getNickname())
+                                    .shopId(review.getShopId())
+                                    .comment(review.getComment())
+                                    .imgUrls(imgUrls)
+                                    .createdAt(review.getCreatedAt())
+                                    .build();
+                        }
                 ).toList();
         return response;
     }
@@ -60,15 +67,19 @@ public class ReviewService {
         Shop shop = shopService.getShopById(shopId);
         List<Review> reviews = reviewRepository.findTop3ByShopOrderByIdDesc(shop);
         List<ReviewResponse> response = reviews.stream()
-                .map(review -> ReviewResponse.builder()
+                .map(review -> {
+                            List<Long> indices = attachmentService.getFileIndicesByServiceNameAndTarget("Review", review.getId());
+                            List<String> imgUrls = indices.stream().map(index -> serverUrl + "/api/v1/attachment/" + index).toList();
+                            return ReviewResponse.builder()
                         .id(review.getId())
                         .score(review.getScore())
-                        .writer(review.getMember().getNickname())
+                                    .memberNickname(review.getMember().getNickname())
                         .shopId(review.getShopId())
                         .comment(review.getComment())
-                        .attachmentIndices(attachmentService.getFileIndicesByServiceNameAndTarget("Review", review.getId()))
+                                    .imgUrls(imgUrls)
                         .createdAt(review.getCreatedAt())
-                        .build()
+                                    .build();
+                        }
                 ).toList();
         return response;
     }
@@ -76,17 +87,21 @@ public class ReviewService {
     public List<ReviewResponse> getReviewByShopIdAndMember(String shopId, Principal principal) {
         Shop shop = shopService.getShopById(shopId);
         Member member = memberService.findByEmail(principal.getName());
-        List<Review> reviews = reviewRepository.findReviewsByShopAndMember(shop, member);
+        List<Review> reviews = reviewRepository.findTop3ByShopOrderByIdDesc(shop);
         List<ReviewResponse> response = reviews.stream()
-                .map(review -> ReviewResponse.builder()
-                        .id(review.getId())
-                        .score(review.getScore())
-                        .writer(review.getMember().getNickname())
-                        .shopId(review.getShopId())
-                        .comment(review.getComment())
-                        .attachmentIndices(attachmentService.getFileIndicesByServiceNameAndTarget("Review", review.getId()))
-                        .createdAt(review.getCreatedAt())
-                        .build()
+                .map(review -> {
+                            List<Long> indices = attachmentService.getFileIndicesByServiceNameAndTarget("Review", review.getId());
+                            List<String> imgUrls = indices.stream().map(index -> serverUrl + "/api/v1/attachment/" + index).toList();
+                            return ReviewResponse.builder()
+                                    .id(review.getId())
+                                    .score(review.getScore())
+                                    .memberNickname(review.getMember().getNickname())
+                                    .shopId(review.getShopId())
+                                    .comment(review.getComment())
+                                    .imgUrls(imgUrls)
+                                    .createdAt(review.getCreatedAt())
+                                    .build();
+                        }
                 ).toList();
         return response;
     }

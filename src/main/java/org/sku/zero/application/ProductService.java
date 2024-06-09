@@ -36,6 +36,9 @@ public class ProductService {
     private final String RETURN_TYPE = "json";
     private final String SERVICE_NAME = "ListPriceModelStoreProductService";
 
+    @Value("${server.url}")
+    private String serverUrl;
+
     public List<ListPriceStoreProductApiResponseDto.ListPriceModelStoreProductInfo> loadShopProductInfo() {
         List<ListPriceStoreProductApiResponseDto.ListPriceModelStoreProductInfo> results = new ArrayList<>();
         int startIndex = 1;
@@ -70,7 +73,7 @@ public class ProductService {
             if (indices.isEmpty()) {
                 return ProductResponse.toDto(product, null, null);
             } else {
-                imgUrl = "http://localhost:8080/api/v1/attachment/" + indices.get(0);
+                imgUrl = serverUrl + "/api/v1/attachment/" + indices.get(0);
                 return ProductResponse.toDto(product, imgUrl, indices.get(0));
             }
         }).toList();
@@ -89,7 +92,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Product getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.SHOP_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND));
         return product;
     }
 
@@ -99,7 +102,7 @@ public class ProductService {
         product.editPrice(modifyProductRequest.price());
 
         if (modifyProductRequest.isDeleteImage()) {
-            attachmentService.removeAttachmentById(modifyProductRequest.attachmentId());
+            attachmentService.removeAttachmentById(Long.parseLong(modifyProductRequest.attachmentUrl().replaceAll(serverUrl + "/api/v1/attachment/", "")));
         }
         if (modifyProductRequest.file() != null) {
             attachmentService.uploadFile(List.of(modifyProductRequest.file()), "Product", product.getId());

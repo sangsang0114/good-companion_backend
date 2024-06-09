@@ -1,4 +1,12 @@
+server:
+  url: ${SERVER_URL:http://localhost:8080}
+  upload_path: ${UPLOAD_PATH:C:\\DEV\\}
+
 spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
   profiles:
     include: API
   datasource:
