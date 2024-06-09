@@ -92,7 +92,7 @@ public class Shop extends BaseTime implements Persistable<String> {
         this.isAvailable = 0;
     }
 
-    public void enableShop() {
+    public void reRegisterShop() {
         this.isAvailable = 1;
     }
 
@@ -115,4 +115,5 @@ public class Shop extends BaseTime implements Persistable<String> {
     public void editBusinessHours(String businessHours) {
         this.businessHours = businessHours;
     }
+
 }

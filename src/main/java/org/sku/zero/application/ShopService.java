@@ -280,4 +280,18 @@ public class ShopService {
     public List<Shop> findAllShops(){
         return shopRepository.findAll();
     }
+
+    @Transactional
+    public Boolean unregisterShop(String shopId) {
+        Shop shop = getShopById(shopId);
+        shop.disableShop();
+        return true;
+    }
+
+    @Transactional
+    public Boolean reRegisterShop(String shopId) {
+        Shop shop = getShopById(shopId);
+        shop.reRegisterShop();
+        return true;
+    }
 }
