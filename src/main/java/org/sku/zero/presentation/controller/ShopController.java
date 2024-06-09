@@ -83,4 +83,18 @@ public class ShopController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ShopPageResponse.toDto(shopList, shopPage));
     }
+
+    @DeleteMapping("/unregister/{shopId}")
+    public ResponseEntity<Boolean> unregisterShop(@PathVariable String shopId) {
+        Boolean result = shopService.unregisterShop(shopId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
+    }
+
+    @PatchMapping("/re-register/{shopId}")
+    public ResponseEntity<Boolean> reRegisterShop(@PathVariable String shopId){
+        Boolean result = shopService.reRegisterShop(shopId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
+    }
 }
