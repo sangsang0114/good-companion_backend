@@ -60,4 +60,11 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(result);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> deleteReview(@PathVariable Long id) {
+        Boolean result = reviewService.deleteReview(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
+    }
 }

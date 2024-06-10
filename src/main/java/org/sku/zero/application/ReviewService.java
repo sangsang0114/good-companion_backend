@@ -104,7 +104,6 @@ public class ReviewService {
                     .map((deletedFile -> Long.parseLong(deletedFile.replaceAll("http://localhost:8080/api/v1/attachment/", ""))
                     )).toList();
 
-            System.out.println(attachmentIds);
             for (Long attachmentId : attachmentIds) {
                 try {
                     attachmentService.removeAttachmentById(attachmentId);
@@ -118,5 +117,12 @@ public class ReviewService {
             attachmentService.uploadFile(requestDto.newFiles(), "Review", requestDto.reviewId());
         }
         return reviewId;
+    }
+
+    @Transactional
+    public Boolean deleteReview(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId).orElseThrow(()-> new NotFoundException(ErrorCode.REVIEW_NOT_FOUND));
+        reviewRepository.delete(review);
+        return true;
     }
 }
