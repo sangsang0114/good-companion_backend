@@ -9,5 +9,6 @@ import lombok.Setter;
 @Setter
 public class SubwayStationResponse {
     private String name;
+    private String line;
     private Double distance;
 }

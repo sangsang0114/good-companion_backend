@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface SubwayStationRepository extends JpaRepository<SubwayStation, String> {
-    @Query("SELECT new org.sku.zero.dto.response.SubwayStationResponse(s.name, " +
+    @Query("SELECT new org.sku.zero.dto.response.SubwayStationResponse(s.name, s.line, " +
             "6371 * 2 * ASIN(SQRT(POWER(SIN((:latitude - s.latitude) * PI() / 180 / 2), 2) + " +
             "COS(:latitude * PI() / 180) * COS(s.latitude * PI() / 180) * " +
             "POWER(SIN((:longitude - s.longitude) * PI() / 180 / 2), 2)))) " +
