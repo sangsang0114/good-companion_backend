@@ -44,4 +44,9 @@ public class Review extends BaseTime {
         this.score = score;
         this.comment = comment;
     }
+
+    public void editReview(String comment, Double score) {
+        this.comment = comment;
+        this.score = score;
+    }
 }

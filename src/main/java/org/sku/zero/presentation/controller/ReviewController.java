@@ -3,6 +3,7 @@ package org.sku.zero.presentation.controller;
 import lombok.RequiredArgsConstructor;
 import org.sku.zero.application.ReviewService;
 import org.sku.zero.dto.request.AddReviewRequest;
+import org.sku.zero.dto.request.ModifyReviewRequest;
 import org.sku.zero.dto.response.ReviewResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,5 +45,19 @@ public class ReviewController {
         List<ReviewResponse> responses = reviewService.getReviewByShopIdAndMember(shopId, principal);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(responses);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ReviewResponse> findReviewById(@PathVariable Long id) {
+        ReviewResponse response = reviewService.getReviewById(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(response);
+    }
+
+    @PatchMapping("/")
+    public ResponseEntity<Long> modifyReview(@ModelAttribute ModifyReviewRequest modifyReviewRequest, Principal principal) {
+        Long result = reviewService.modifyReview(modifyReviewRequest, principal);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
     }
 }

@@ -2,6 +2,7 @@ package org.sku.zero.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.sku.zero.domain.Review;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,4 +18,17 @@ public class ReviewResponse {
     private Double score;
     private List<String> imgUrls;
     private LocalDateTime createdAt;
+
+    public static ReviewResponse toDto(Review review, List<String> imgUrls) {
+        return ReviewResponse.builder()
+                .id(review.getId())
+                .shopId(review.getShopId())
+                .memberId(review.getMemberId())
+                .memberNickname(review.getMember().getNickname())
+                .comment(review.getComment())
+                .score(review.getScore())
+                .createdAt(review.getCreatedAt())
+                .imgUrls(imgUrls)
+                .build();
+    }
 }

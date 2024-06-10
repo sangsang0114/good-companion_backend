@@ -6,7 +6,10 @@ import org.sku.zero.domain.Member;
 import org.sku.zero.domain.Review;
 import org.sku.zero.domain.Shop;
 import org.sku.zero.dto.request.AddReviewRequest;
+import org.sku.zero.dto.request.ModifyReviewRequest;
 import org.sku.zero.dto.response.ReviewResponse;
+import org.sku.zero.exception.ErrorCode;
+import org.sku.zero.exception.NotFoundException;
 import org.sku.zero.infrastructure.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -44,20 +47,12 @@ public class ReviewService {
 
     public List<ReviewResponse> getReviewByShopId(String shopId) {
         Shop shop = shopService.getShopById(shopId);
-        List<Review> reviews = reviewRepository.findTop3ByShopOrderByIdDesc(shop);
+        List<Review> reviews = reviewRepository.findReviewsByShop(shop);
         List<ReviewResponse> response = reviews.stream()
                 .map(review -> {
                             List<Long> indices = attachmentService.getFileIndicesByServiceNameAndTarget("Review", review.getId());
                             List<String> imgUrls = indices.stream().map(index -> serverUrl + "/api/v1/attachment/" + index).toList();
-                            return ReviewResponse.builder()
-                                    .id(review.getId())
-                                    .score(review.getScore())
-                                    .memberNickname(review.getMember().getNickname())
-                                    .shopId(review.getShopId())
-                                    .comment(review.getComment())
-                                    .imgUrls(imgUrls)
-                                    .createdAt(review.getCreatedAt())
-                                    .build();
+                    return ReviewResponse.toDto(review, imgUrls);
                         }
                 ).toList();
         return response;
@@ -70,15 +65,7 @@ public class ReviewService {
                 .map(review -> {
                             List<Long> indices = attachmentService.getFileIndicesByServiceNameAndTarget("Review", review.getId());
                             List<String> imgUrls = indices.stream().map(index -> serverUrl + "/api/v1/attachment/" + index).toList();
-                            return ReviewResponse.builder()
-                        .id(review.getId())
-                        .score(review.getScore())
-                                    .memberNickname(review.getMember().getNickname())
-                        .shopId(review.getShopId())
-                        .comment(review.getComment())
-                                    .imgUrls(imgUrls)
-                        .createdAt(review.getCreatedAt())
-                                    .build();
+                    return ReviewResponse.toDto(review, imgUrls);
                         }
                 ).toList();
         return response;
@@ -87,22 +74,49 @@ public class ReviewService {
     public List<ReviewResponse> getReviewByShopIdAndMember(String shopId, Principal principal) {
         Shop shop = shopService.getShopById(shopId);
         Member member = memberService.findByEmail(principal.getName());
-        List<Review> reviews = reviewRepository.findTop3ByShopOrderByIdDesc(shop);
+        List<Review> reviews = reviewRepository.findReviewsByShop(shop);
         List<ReviewResponse> response = reviews.stream()
                 .map(review -> {
                             List<Long> indices = attachmentService.getFileIndicesByServiceNameAndTarget("Review", review.getId());
                             List<String> imgUrls = indices.stream().map(index -> serverUrl + "/api/v1/attachment/" + index).toList();
-                            return ReviewResponse.builder()
-                                    .id(review.getId())
-                                    .score(review.getScore())
-                                    .memberNickname(review.getMember().getNickname())
-                                    .shopId(review.getShopId())
-                                    .comment(review.getComment())
-                                    .imgUrls(imgUrls)
-                                    .createdAt(review.getCreatedAt())
-                                    .build();
+                    return ReviewResponse.toDto(review, imgUrls);
                         }
                 ).toList();
         return response;
+    }
+
+    public ReviewResponse getReviewById(Long id) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.REVIEW_NOT_FOUND));
+        List<String> imgUrls = attachmentService.getFileIndicesByServiceNameAndTarget("Review", id)
+                .stream().map(index -> serverUrl + "/api/v1/attachment/" + index).toList();
+        return ReviewResponse.toDto(review, imgUrls);
+    }
+
+    @Transactional
+    public Long modifyReview(ModifyReviewRequest requestDto, Principal principal) {
+        Long reviewId = requestDto.reviewId();
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new NotFoundException(ErrorCode.REVIEW_NOT_FOUND));
+        review.editReview(requestDto.comment(), requestDto.score());
+
+        if (requestDto.deletedFiles() != null && !requestDto.deletedFiles().isEmpty()) {
+            List<Long> attachmentIds = requestDto.deletedFiles().stream()
+                    .map((deletedFile -> Long.parseLong(deletedFile.replaceAll("http://localhost:8080/api/v1/attachment/", ""))
+                    )).toList();
+
+            System.out.println(attachmentIds);
+            for (Long attachmentId : attachmentIds) {
+                try {
+                    attachmentService.removeAttachmentById(attachmentId);
+                } catch (Exception e) {
+                    System.out.println("test");
+                }
+            }
+        }
+
+        if (requestDto.newFiles() != null && !requestDto.newFiles().isEmpty()) {
+            attachmentService.uploadFile(requestDto.newFiles(), "Review", requestDto.reviewId());
+        }
+        return reviewId;
     }
 }
