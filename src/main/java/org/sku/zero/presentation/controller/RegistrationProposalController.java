@@ -5,6 +5,7 @@ import org.sku.zero.application.RegistrationProposalService;
 import org.sku.zero.domain.RegistrationProposal;
 import org.sku.zero.dto.request.AddRegistrationProposalRequest;
 import org.sku.zero.dto.response.ListProposalResponse;
+import org.sku.zero.dto.response.ProposalDetailResponse;
 import org.sku.zero.dto.response.ProposalPageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -32,9 +33,10 @@ public class RegistrationProposalController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<String> findProposalById(@PathVariable Long id){
+    public ResponseEntity<ProposalDetailResponse> findProposalById(@PathVariable Long id) {
+
         return ResponseEntity.status(HttpStatus.OK)
-                .body(null);
+                .body(registrationProposalService.getProposalById(id));
     }
 
     @PostMapping("/register")
@@ -59,6 +61,6 @@ public class RegistrationProposalController {
     public ResponseEntity<Long> rejectProposal(@PathVariable Long id) {
         Long targetId = registrationProposalService.rejectProposal(id);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(targetId  );
+                .body(targetId);
     }
 }

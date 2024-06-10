@@ -11,6 +11,7 @@ public class ProposalDetailResponse {
     private Long id;
     private String memberNickname;
     private String memberEmail;
+    private Long memberPk;
     private String shopName;
     private String shopAddress;
     private String shopPhone;
@@ -24,6 +25,18 @@ public class ProposalDetailResponse {
     public static ProposalDetailResponse toDto(RegistrationProposal proposal, Member member) {
         return ProposalDetailResponse.builder()
                 .id(proposal.getId())
+                .memberNickname(member.getNickname())
+                .memberEmail(member.getEmail())
+                .memberPk(member.getId())
+                .shopName(proposal.getShopName())
+                .shopAddress(proposal.getShopAddress())
+                .shopPhone(proposal.getShopPhone())
+                .businessHours(proposal.getBusinessHours())
+                .info(proposal.getInfo())
+                .reason(proposal.getReason())
+                .sectorId(proposal.getSectorId())
+                .zipcode(proposal.getZipcode())
+                .status(proposal.getStatus().name())
                 .build();
     }
 }

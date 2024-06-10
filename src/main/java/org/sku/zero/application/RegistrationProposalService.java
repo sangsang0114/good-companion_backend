@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.sku.zero.domain.Member;
 import org.sku.zero.domain.RegistrationProposal;
 import org.sku.zero.dto.request.AddRegistrationProposalRequest;
+import org.sku.zero.dto.response.ProposalDetailResponse;
+import org.sku.zero.exception.ErrorCode;
+import org.sku.zero.exception.NotFoundException;
 import org.sku.zero.infrastructure.repository.RegistrationProposalRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,8 +35,10 @@ public class RegistrationProposalService {
         return;
     }
     @Transactional(readOnly = true)
-    public void getProposalById(Long id){
-        return;
+    public ProposalDetailResponse getProposalById(Long id) {
+        RegistrationProposal proposal = registrationProposalRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.PROPOSAL_NOT_FOUND));
+        return ProposalDetailResponse.toDto(proposal, proposal.getMember());
     }
     public Long addProposal(AddRegistrationProposalRequest request, Principal principal) {
         Member member = memberService.findByEmail(principal.getName());
