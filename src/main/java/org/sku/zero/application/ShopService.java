@@ -244,9 +244,9 @@ public class ShopService {
         return shops;
     }
 
-    public Page<Shop> findAllShops(int page, int size) {
+    public Page<Shop> findShopsByRegionAndSector(String sector, String region, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Shop> shops = shopRepository.findAll(pageable);
+        Page<Shop> shops = shopRepository.findShopsBySectorAndRegion(sector, region, pageable);
         return shops;
     }
 

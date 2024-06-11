@@ -35,9 +35,17 @@ public class ShopController {
 
     @GetMapping("/list")
     public ResponseEntity<ShopPageResponse> listShops(
+            @RequestParam(required = false) String sector,
+            @RequestParam(required = false) String region,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "0") int page) {
-        Page<Shop> shopPage = shopService.findAllShops(page, size);
+        if ("null".equals(sector)) {
+            sector = null;
+        }
+        if ("null".equals(region)) {
+            region = null;
+        }
+        Page<Shop> shopPage = shopService.findShopsByRegionAndSector(sector, region, page, size);
         List<ShopListResponse> shopList = shopPage.getContent()
                 .stream().map(ShopListResponse::toDto)
                 .toList();

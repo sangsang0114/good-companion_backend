@@ -25,4 +25,10 @@ public interface ShopRepository extends JpaRepository<Shop, String> {
     List<Shop> getRandomThreeShops();
 
     Page<Shop> getShopsByNameContaining(String search, Pageable pageable);
+
+    @Query("SELECT s " +
+            "FROM Shop s " +
+            "WHERE (:sector IS NULL OR s.shopSector = :sector) " +
+            "AND (:region IS NULL OR s.shopRegion = :region) ")
+    Page<Shop> findShopsBySectorAndRegion(String sector, String region, Pageable pageable);
 }
