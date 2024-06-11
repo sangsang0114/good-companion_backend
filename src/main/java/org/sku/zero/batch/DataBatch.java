@@ -2,11 +2,9 @@ package org.sku.zero.batch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sku.zero.application.FranchiseService;
-import org.sku.zero.application.ProductService;
-import org.sku.zero.application.ShopLocationService;
-import org.sku.zero.application.ShopService;
+import org.sku.zero.application.*;
 import org.sku.zero.domain.Shop;
+import org.sku.zero.domain.ShopPending;
 import org.sku.zero.dto.external.GeoCoderResultDto;
 import org.sku.zero.dto.external.ListPriceStoreApiResponseDto;
 import org.sku.zero.dto.external.ListPriceStoreProductApiResponseDto;
@@ -52,7 +50,7 @@ public class DataBatch {
     }
 
     @Bean
-    public Tasklet loadshopTasklet(JobRepository jobRepository) {
+    public Tasklet loadshopTasklet(JobRepository jobRepository, ShopPendingService shopPendingService) {
         Set<String> validIds = new HashSet<>();
         return ((contribution, chunkContext) -> {
             List<Shop> shops = shopService.findAllShops();
@@ -64,6 +62,8 @@ public class DataBatch {
                 GeoCoderResultDto geoCoderResultDto = shopLocationService.getCoordinateAndRegionId(info.getAddress());
                 // 유효하지 않은 주소의 경우 별도 처리
                 if (geoCoderResultDto == null) {
+                    ShopPending shopPending = info.toShopPendingEntity();
+                    shopPendingService.save(shopPending);
                     continue;
                 }
                 validIds.add(info.getId());

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sku.zero.domain.Shop;
+import org.sku.zero.domain.ShopPending;
 
 
 @Getter
@@ -77,6 +78,20 @@ public class ListPriceStoreApiResponseDto {
                     .zipcode(zipcode)
                     .isLocalFranchise(isFranchise)
                     .imgUrlPublic(imgUrl)
+                    .build();
+        }
+
+        public ShopPending toShopPendingEntity(){
+            return ShopPending.builder()
+                    .id(id)
+                    .name(name)
+                    .shopSector(sectorId)
+                    .address(address)
+                    .phone(phone)
+                    .info(info)
+                    .boast(boast)
+                    .imgUrlPublic(imgUrl)
+                    .errorInfo("GeoCoding Error")
                     .build();
         }
     }
