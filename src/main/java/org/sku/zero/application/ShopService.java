@@ -16,6 +16,7 @@ import org.sku.zero.event.NewShopAddedEvent;
 import org.sku.zero.exception.BadRequestException;
 import org.sku.zero.exception.ErrorCode;
 import org.sku.zero.exception.NotFoundException;
+import org.sku.zero.infrastructure.repository.IdGeneratorRepository;
 import org.sku.zero.infrastructure.repository.ShopLocationRepository;
 import org.sku.zero.infrastructure.repository.ShopRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +49,7 @@ public class ShopService {
     private final AttachmentService attachmentService;
     private final ShopSectorService shopSectorService;
     private final DailyShopService dailyShopService;
+    private final IdGeneratorRepository idGeneratorRepository;
 
     @Value("${seoul.key}")
     private String KEY;
@@ -159,14 +161,14 @@ public class ShopService {
     @Transactional
     public void addShop(AddShopRequest addShopRequest) {
         GeoCoderResultDto resultDto = shopLocationService.getCoordinateAndRegionId(addShopRequest.address());
-        String shopId = addShopRequest.id();
+        String shopId = idGeneratorRepository.findById(1L).get().generateNewId().toString();
         if (resultDto == null)
             throw new BadRequestException(ErrorCode.INVALID_ADDRESS);
         String refinedAddress = resultDto.refinedAddress();
 
         List<MultipartFile> files = addShopRequest.files();
         String firstImageUrl = attachmentService.uploadFile(files, "Shop", Long.parseLong(shopId));
-        shopRepository.save(addShopRequest.toEntity(refinedAddress));
+        shopRepository.save(addShopRequest.toEntity(refinedAddress,shopId));
         shopLocationService.save(resultDto.toEntity(shopId));
 
         eventPublisher.publishEvent(new NewShopAddedEvent(this, addShopRequest, firstImageUrl));

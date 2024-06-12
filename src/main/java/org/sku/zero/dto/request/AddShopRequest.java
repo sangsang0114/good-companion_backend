@@ -8,9 +8,9 @@ import java.util.List;
 public record AddShopRequest(String id, String name, String sectorId, String address,
                              String regionId, String phone, String boast, String info, String businessHours,
                              List<MultipartFile> files, String zipcode, Integer isLocalFranchise) {
-    public Shop toEntity(String refinedAddress) {
+    public Shop toEntity(String refinedAddress, String shopId) {
         return Shop.builder()
-                .id(id)
+                .id(shopId)
                 .name(name)
                 .shopSector(sectorId)
                 .address(refinedAddress)
