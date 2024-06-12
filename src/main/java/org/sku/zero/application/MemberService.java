@@ -182,4 +182,17 @@ public class MemberService {
             return false;
         }
     }
+
+    @Transactional
+    public Boolean changePassword(Principal principal, ChangePasswordRequest request) {
+        Member member = findByEmail(principal.getName());
+        if (bCryptPasswordEncoder.matches(request.currentPassword(), member.getPassword())) {
+            System.out.println(request.newPassword());
+            System.out.println(request.currentPassword());
+            member.updatePassword(bCryptPasswordEncoder.encode(request.newPassword()));
+        } else {
+            throw new UnauthorizedException(ErrorCode.PASSWORD_INCORRECT);
+        }
+        return true;
+    }
 }

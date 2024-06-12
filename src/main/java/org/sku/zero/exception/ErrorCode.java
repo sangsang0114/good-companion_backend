@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     //400
     UNAUTHORIZED_CLIENT(HttpStatus.BAD_REQUEST, "접근 토큰이 없습니다."),
+    PASSWORD_INCORRECT(HttpStatus.BAD_REQUEST, "비밀번호가 일차히지 않습니다."),
     INVALID_ADDRESS(HttpStatus.BAD_REQUEST, "유효하지 않은 주소입니다."),
     INVALID_ARGUMENTS(HttpStatus.BAD_REQUEST, "요청인자가 잘못되었습니다"),
 

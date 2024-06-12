@@ -93,4 +93,11 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(result);
     }
+
+    @PatchMapping("/change-password")
+    public ResponseEntity<Boolean> changePassword(@RequestBody ChangePasswordRequest request, Principal principal){
+        Boolean result = memberService.changePassword(principal, request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
+    }
 }
