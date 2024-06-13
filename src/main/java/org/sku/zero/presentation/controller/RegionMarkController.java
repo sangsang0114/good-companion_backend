@@ -34,10 +34,4 @@ public class RegionMarkController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(true);
     }
-
-    @GetMapping("/target-list")
-    public ResponseEntity<RegionNotificationTargetResponse> listTargets(Principal principal) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(regionMarkService.getFcmTokensAndEmailsByRegionId("11290"));
-    }
 }
