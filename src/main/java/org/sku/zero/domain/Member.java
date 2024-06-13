@@ -5,9 +5,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sku.zero.domain.enums.MemberRole;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.sku.zero.domain.enums.MemberRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -44,6 +44,12 @@ public class Member extends BaseTime implements UserDetails {
 
     @Column(name = "fcm_token")
     private String fcmToken;
+
+    @Column(name = "email_flag")
+    private Integer emailFlag;
+
+    @Column(name = "fcm_flag")
+    private Integer fcmFlag;
 
     @Builder
     public Member(String email, String password, String nickname) {
@@ -89,5 +95,14 @@ public class Member extends BaseTime implements UserDetails {
 
     public void updatePassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateNotificationSetting(Integer emailFlag, Integer fcmFlag) {
+        this.emailFlag = emailFlag;
+        this.fcmFlag = fcmFlag;
     }
 }

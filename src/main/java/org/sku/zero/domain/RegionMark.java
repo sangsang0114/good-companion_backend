@@ -27,17 +27,9 @@ public class RegionMark extends BaseTime {
     @Column(name = "region_id")
     private String regionId;
 
-    @Column(name = "email_flag")
-    private Integer emailFlag;
-
-    @Column(name = "fcm_Flag")
-    private Integer fcmFlag;
-
     @Builder
     public RegionMark(Long memberId, String regionId) {
         this.memberId = memberId;
         this.regionId = regionId;
-        this.emailFlag = 1;
-        this.fcmFlag = 1;
     }
 }

@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.sku.zero.domain.Member;
 import org.sku.zero.domain.RegionMark;
 import org.sku.zero.dto.request.RegionMarkRequest;
-import org.sku.zero.dto.response.RegionNotificationTargetResponse;
 import org.sku.zero.infrastructure.repository.RegionMarkRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.List;
@@ -18,6 +18,7 @@ public class RegionMarkService {
     private final RegionMarkRepository regionMarkRepository;
     private final MemberService memberService;
 
+    @Transactional(readOnly = true)
     public List<String> getRegionMarkIdsByMember(Principal principal) {
         String email = principal.getName();
         Member member = memberService.findByEmail(email);
@@ -26,6 +27,7 @@ public class RegionMarkService {
         return regionMarks.stream().map(RegionMark::getRegionId).toList();
     }
 
+    @Transactional
     public void editRegionMark(RegionMarkRequest regionMarkRequest, Principal principal) {
         Member member = memberService.findByEmail(principal.getName());
         if (regionMarkRequest.isAdd()) {
@@ -35,19 +37,5 @@ public class RegionMarkService {
                     .orElseThrow(() -> new EntityNotFoundException("Region mark not found"));
             regionMarkRepository.delete(regionMark);
         }
-    }
-
-    public List<String> getEmailsByRegionId(String regionId) {
-        List<String> emails = regionMarkRepository.findEmailsByRegionId(regionId);
-        return emails;
-    }
-
-    public RegionNotificationTargetResponse getFcmTokensAndEmailsByRegionId(String regionId) {
-        List<String> tokens = regionMarkRepository.findFcmTokensByRegionId(regionId);
-        List<String> emails = regionMarkRepository.findEmailsByRegionId(regionId);
-        return RegionNotificationTargetResponse.builder()
-                .fcmTokens(tokens)
-                .emails(emails)
-                .build();
     }
 }

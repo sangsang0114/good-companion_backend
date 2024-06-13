@@ -62,9 +62,9 @@ public class MemberController {
 
     @PostMapping("/send-verification-code")
     public ResponseEntity<Boolean> sendVerificationCode(@RequestBody VerifyEmailRequest request) {
-        memberService.verifyEmail(request);
-        return null;
-//        return ResponseEntity.ok(true);
+        Boolean result = memberService.verifyEmail(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
     }
 
     @PostMapping("/verify-code")
@@ -97,6 +97,20 @@ public class MemberController {
     @PatchMapping("/change-password")
     public ResponseEntity<Boolean> changePassword(@RequestBody ChangePasswordRequest request, Principal principal){
         Boolean result = memberService.changePassword(principal, request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
+    }
+
+    @PatchMapping("/change-nickname")
+    public ResponseEntity<Boolean> changeNickname(@RequestBody ChangeNicknameRequest request, Principal principal){
+        Boolean result = memberService.changeNickname(principal, request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
+    }
+
+    @PatchMapping("/change-notification-setting")
+    public ResponseEntity<Boolean> changeNotificationSetting(@RequestBody ChangeNotificationSettingRequest request, Principal principal){
+        Boolean result = memberService.changeNotificationSetting(principal, request);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(result);
     }
