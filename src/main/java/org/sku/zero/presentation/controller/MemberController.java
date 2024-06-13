@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sku.zero.application.MemberService;
 import org.sku.zero.dto.request.*;
 import org.sku.zero.dto.response.LoginResponse;
+import org.sku.zero.dto.response.NotificationSettingResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -113,5 +114,12 @@ public class MemberController {
         Boolean result = memberService.changeNotificationSetting(principal, request);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(result);
+    }
+
+    @GetMapping("/notification-setting")
+    public ResponseEntity<NotificationSettingResponse> findNotificationSettingByEmail(Principal principal){
+        NotificationSettingResponse response = memberService.getNotificationSettingByEmail(principal);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(response);
     }
 }

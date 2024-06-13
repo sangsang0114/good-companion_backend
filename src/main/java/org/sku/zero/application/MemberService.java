@@ -195,4 +195,25 @@ public class MemberService {
         }
         return true;
     }
+
+    @Transactional
+    public Boolean changeNickname(Principal principal, ChangeNicknameRequest request) {
+        Member member = findByEmail(principal.getName());
+        member.updateNickname(request.nickname());
+        return true;
+    }
+
+    @Transactional
+    public Boolean changeNotificationSetting(Principal principal, ChangeNotificationSettingRequest request) {
+        Member member = findByEmail(principal.getName());
+        Integer emailFlag = request.emailFlag() ? 1 : 0;
+        Integer fcmFlag = request.fcmFlag() ? 1 : 0;
+        member.updateNotificationSetting(emailFlag, fcmFlag);
+        return true;
+    }
+
+    public NotificationSettingResponse getNotificationSettingByEmail(Principal principal) {
+        Member member = findByEmail(principal.getName());
+        return NotificationSettingResponse.toDto(member);
+    }
 }
