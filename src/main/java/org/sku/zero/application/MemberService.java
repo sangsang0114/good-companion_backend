@@ -6,11 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sku.zero.config.security.jwt.TokenProvider;
 import org.sku.zero.domain.Member;
-import org.sku.zero.dto.request.AddMemberRequest;
-import org.sku.zero.dto.request.LoginMemberRequest;
-import org.sku.zero.dto.request.ResetPasswordRequest;
-import org.sku.zero.dto.request.VerifyEmailRequest;
+import org.sku.zero.dto.request.*;
 import org.sku.zero.dto.response.LoginResponse;
+import org.sku.zero.dto.response.NotificationSettingResponse;
 import org.sku.zero.exception.ErrorCode;
 import org.sku.zero.exception.NotFoundException;
 import org.sku.zero.exception.UnauthorizedException;
@@ -51,8 +49,8 @@ public class MemberService {
                 .orElseThrow(() -> new UnauthorizedException(ErrorCode.LOGIN_FAIL));
         if (!bCryptPasswordEncoder.matches(password, member.getPassword()))
             throw new UnauthorizedException(ErrorCode.LOGIN_FAIL);
-        String accessToken = tokenProvider.generateToken(member, Duration.ofHours(3), "accessToken");
-        String refreshToken = tokenProvider.generateToken(member, Duration.ofHours(3), "refreshToken");
+        String accessToken = tokenProvider.generateToken(member, Duration.ofHours(12), "accessToken");
+        String refreshToken = tokenProvider.generateToken(member, Duration.ofDays(1), "refreshToken");
         redisTemplate.opsForValue().set(
                 "refreshToken:email:" + email,
                 refreshToken,
@@ -75,11 +73,11 @@ public class MemberService {
         Duration remain = Duration.between(now, expirationTime);
 
         Member member = memberRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(ErrorCode.LOGIN_FAIL));
-        String newAccessToken = tokenProvider.generateToken(member, Duration.ofMinutes(20), "accessToken");
+        String newAccessToken = tokenProvider.generateToken(member, Duration.ofHours(12), "accessToken");
         String newRefreshToken = null;
         //리프레시 토큰의 수명이 25분 이내로 남은 경우 리프레시 토큰도 재발급
         if (remain.getSeconds() > 0 && remain.getSeconds() <= 25 * 60) {
-            newRefreshToken = tokenProvider.generateToken(member, Duration.ofHours(3), "refreshToken");
+            newRefreshToken = tokenProvider.generateToken(member, Duration.ofDays(1), "refreshToken");
             redisTemplate.delete("refreshToken:email:" + email);
             redisTemplate.opsForValue().set(
                     "refreshToken:email:" + email,
