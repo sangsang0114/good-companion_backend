@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ShopPendingService {
@@ -21,7 +23,13 @@ public class ShopPendingService {
         return shopPendings;
     }
 
+    @Transactional
     public void save(ShopPending shopPending) {
         shopPendingRepository.save(shopPending);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ShopPending> findAll() {
+        return shopPendingRepository.findAll();
     }
 }

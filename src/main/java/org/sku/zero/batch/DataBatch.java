@@ -54,7 +54,9 @@ public class DataBatch {
         Set<String> validIds = new HashSet<>();
         return ((contribution, chunkContext) -> {
             List<Shop> shops = shopService.findAllShops();
+            List<ShopPending> pendingShops = shopPendingService.findAll();
             shops.forEach(shop -> validIds.add(shop.getId()));
+            pendingShops.forEach(shop -> validIds.add(shop.getId()));
             List<ListPriceStoreApiResponseDto.ListPriceStoreApiInfo> dto = shopService.loadShopInfo();
             for (ListPriceStoreApiResponseDto.ListPriceStoreApiInfo info : dto) {
                 //이미 등록되어있는 가게의 경우 스킵
