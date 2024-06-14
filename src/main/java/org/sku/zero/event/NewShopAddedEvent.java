@@ -8,10 +8,12 @@ import org.springframework.context.ApplicationEvent;
 public class NewShopAddedEvent extends ApplicationEvent {
     private final AddShopRequest dto;
     private final String firstImgUrl;
+    private final String shopId;
 
-    public NewShopAddedEvent(Object source, AddShopRequest dto, String firstImgUrl) {
+    public NewShopAddedEvent(Object source, AddShopRequest dto, String firstImgUrl, String shopId) {
         super(source);
         this.dto = dto;
         this.firstImgUrl = firstImgUrl;
+        this.shopId = shopId;
     }
 }

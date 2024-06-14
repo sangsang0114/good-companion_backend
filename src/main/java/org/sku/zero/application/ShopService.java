@@ -171,7 +171,7 @@ public class ShopService {
         shopRepository.save(addShopRequest.toEntity(refinedAddress,shopId));
         shopLocationService.save(resultDto.toEntity(shopId));
 
-        eventPublisher.publishEvent(new NewShopAddedEvent(this, addShopRequest, firstImageUrl));
+        eventPublisher.publishEvent(new NewShopAddedEvent(this, addShopRequest, firstImageUrl, shopId));
     }
 
     @Transactional(readOnly = true)
