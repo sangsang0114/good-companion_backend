@@ -6,8 +6,6 @@ import org.sku.zero.application.ShopNewsService;
 import org.sku.zero.domain.ShopNews;
 import org.sku.zero.dto.request.AddShopNewsRequest;
 import org.sku.zero.dto.response.ShopNewsPageResponse;
-import org.sku.zero.dto.response.ShopNewsResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,14 +30,21 @@ public class ShopNewsController {
     public ResponseEntity<ShopNewsPageResponse> getShopNewsForFeed(
             @RequestParam(defaultValue = "0") Integer page,
             Principal principal) {
-        Page<ShopNews> shopNewsPage = shopNewsService.findNewsByMarkedShops(10, page, principal);
-        List<ShopNewsResponse> shopNewsResponses = shopNewsPage.stream().map(ShopNewsResponse::toDto).toList();
+        ShopNewsPageResponse response = shopNewsService.findNewsByMarkedShops(10, page,principal);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ShopNewsPageResponse.toDto(shopNewsResponses, shopNewsPage));
+                .body(response);
     }
 
+    @GetMapping("/{shopId}")
+    public ResponseEntity<ShopNewsPageResponse> getShopNewsByShopId(
+            @PathVariable String shopId,
+            @RequestParam(defaultValue = "0") Integer page) {
+        ShopNewsPageResponse response = shopNewsService.findNewsByShop(shopId, 10, page);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(response);
+    }
     @PostMapping("/")
-    public ResponseEntity<Long> createShopNews(@RequestBody AddShopNewsRequest addShopNewsRequest, Principal principal) {
+    public ResponseEntity<Long> createShopNews(@ModelAttribute AddShopNewsRequest addShopNewsRequest, Principal principal) {
         Long id = shopNewsService.addShopNews(addShopNewsRequest, principal);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(id);
@@ -49,7 +54,7 @@ public class ShopNewsController {
     public ResponseEntity<List<Long>> createTestNews(Principal principal) {
         List<Long> ids = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            AddShopNewsRequest addShopNewsRequest = new AddShopNewsRequest("11647211", faker.lorem().sentence(), faker.lorem().sentence(), null);
+            AddShopNewsRequest addShopNewsRequest = new AddShopNewsRequest("10000000", faker.lorem().sentence(), faker.lorem().sentence(), null);
             ids.add(shopNewsService.addShopNews(addShopNewsRequest, principal));
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(ids);
