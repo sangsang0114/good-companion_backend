@@ -13,6 +13,9 @@ import org.sku.zero.exception.ErrorCode;
 import org.sku.zero.exception.NotFoundException;
 import org.sku.zero.exception.UnauthorizedException;
 import org.sku.zero.infrastructure.repository.MemberRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -213,5 +216,18 @@ public class MemberService {
     public NotificationSettingResponse getNotificationSettingByEmail(Principal principal) {
         Member member = findByEmail(principal.getName());
         return NotificationSettingResponse.toDto(member);
+    }
+
+    public Page<Member> listMembers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Member> memberPage = memberRepository.findAll(pageable);
+        return memberPage;
+    }
+
+    @Transactional
+    public Boolean updateFcmByAdmin(ModifyFcmTokenRequest request) {
+        Member member = findById(request.memberId());
+        member.updateFcmToken(request.fcmToken());
+        return true;
     }
 }

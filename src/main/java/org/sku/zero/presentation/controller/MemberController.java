@@ -2,14 +2,19 @@ package org.sku.zero.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.sku.zero.application.MemberService;
+import org.sku.zero.domain.Member;
 import org.sku.zero.dto.request.*;
 import org.sku.zero.dto.response.LoginResponse;
+import org.sku.zero.dto.response.MemberPageResponse;
+import org.sku.zero.dto.response.MemberResponse;
 import org.sku.zero.dto.response.NotificationSettingResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RequestMapping("/api/v1/member")
 @RestController
@@ -121,5 +126,29 @@ public class MemberController {
         NotificationSettingResponse response = memberService.getNotificationSettingByEmail(principal);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(response);
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<MemberResponse> findMemberById(@RequestParam Long memberId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(MemberResponse.toDto(memberService.findById(memberId)));
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<MemberPageResponse> listMembers(
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "0") int page) {
+        Page<Member> memberPage = memberService.listMembers(page, size);
+        List<MemberResponse> memberResponseList = memberPage
+                .stream().map(MemberResponse::toDto).toList();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(MemberPageResponse.toDto(memberResponseList, memberPage));
+    }
+
+    @PatchMapping("/update-fcm-by-admin")
+    public ResponseEntity<Boolean> updateFcmByAdmin(@RequestBody ModifyFcmTokenRequest request){
+        Boolean result = memberService.updateFcmByAdmin(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
     }
 }

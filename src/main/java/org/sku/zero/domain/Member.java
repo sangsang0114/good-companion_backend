@@ -105,4 +105,8 @@ public class Member extends BaseTime implements UserDetails {
         this.emailFlag = emailFlag;
         this.fcmFlag = fcmFlag;
     }
+
+    public void updateFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
 }
