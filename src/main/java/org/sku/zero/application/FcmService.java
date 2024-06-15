@@ -7,7 +7,7 @@ import com.google.common.net.HttpHeaders;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.sku.zero.dto.request.FcmSendTestRequest;
+import org.sku.zero.dto.external.FcmSendRequest;
 import org.sku.zero.dto.external.FcmMessageDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -29,7 +29,7 @@ public class FcmService {
     private final ObjectMapper mapper;
 
     @Async
-    public void sendMessageTo(FcmSendTestRequest dto) throws IOException {
+    public void sendMessageTo(FcmSendRequest dto) throws IOException {
         String message = makeMessage(dto);
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
@@ -39,25 +39,37 @@ public class FcmService {
                 .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
                 .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
                 .build();
-        Response response = client.newCall(request).execute();
-        log.info(response.body().string());
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                log.error("FCM API request failed: " + response);
+                log.error("Response body: " + response.body().string());
+                throw new IOException("Unexpected code " + response);
+            }
+            log.info(response.body().string());
+        }
     }
 
-    private String makeMessage(FcmSendTestRequest dto) throws JsonProcessingException {
+    private String makeMessage(FcmSendRequest dto) throws JsonProcessingException {
         FcmMessageDto fcmMessageDto = FcmMessageDto.builder()
                 .message(FcmMessageDto.Message.builder()
                         .token(dto.getToken())
                         .notification(FcmMessageDto.Notification.builder()
                                 .title(dto.getTitle())
                                 .body(dto.getBody())
-                                .image("https://cdn.pixabay.com/photo/2022/01/05/05/55/man-6916436_1280.jpg")
+                                .image(dto.getImageUrl())
+                                .build()
+                        )
+                        .data(FcmMessageDto.Data.builder()
+                                .url(dto.getClickAction())
                                 .build()
                         )
                         .build()
                 )
                 .validateOnly(false)
                 .build();
-        return mapper.writeValueAsString(fcmMessageDto);
+        String message = mapper.writeValueAsString(fcmMessageDto);
+        log.info("Generated FCM message: " + message);
+        return message;
     }
 
     private String getAccessToken() throws IOException {

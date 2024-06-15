@@ -168,10 +168,11 @@ public class ShopService {
 
         List<MultipartFile> files = addShopRequest.files();
         String firstImageUrl = attachmentService.uploadFile(files, "Shop", Long.parseLong(shopId));
-        shopRepository.save(addShopRequest.toEntity(refinedAddress,shopId));
+        Shop savedShop = shopRepository.save(addShopRequest.toEntity(refinedAddress, shopId));
+
         shopLocationService.save(resultDto.toEntity(shopId));
 
-        eventPublisher.publishEvent(new NewShopAddedEvent(this, addShopRequest, firstImageUrl, shopId));
+        eventPublisher.publishEvent(new NewShopAddedEvent(this, savedShop, firstImageUrl));
     }
 
     @Transactional(readOnly = true)

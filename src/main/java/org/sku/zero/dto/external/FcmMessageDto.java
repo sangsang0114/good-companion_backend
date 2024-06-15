@@ -8,13 +8,14 @@ import lombok.Getter;
 @Builder
 public class FcmMessageDto {
     private boolean validateOnly;
-    private FcmMessageDto.Message message;
+    private Message message;
 
     @Builder
     @AllArgsConstructor
     @Getter
     public static class Message {
-        private FcmMessageDto.Notification notification;
+        private Notification notification;
+        private Data data;
         private String token;
     }
 
@@ -25,5 +26,12 @@ public class FcmMessageDto {
         private String title;
         private String body;
         private String image;
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @Getter
+    public static class Data {
+        private String url;
     }
 }

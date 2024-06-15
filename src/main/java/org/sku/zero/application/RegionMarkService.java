@@ -38,4 +38,11 @@ public class RegionMarkService {
             regionMarkRepository.delete(regionMark);
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<String> getFcmTokensByRegionMark(String regionId) {
+        List<String> fcmTokens = regionMarkRepository.findRegionMarksByRegionId(regionId)
+                .stream().map(regionMark -> regionMark.getMember().getFcmToken()).toList();
+        return fcmTokens;
+    }
 }
