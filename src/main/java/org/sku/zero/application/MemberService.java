@@ -10,6 +10,7 @@ import org.sku.zero.dto.request.*;
 import org.sku.zero.dto.response.LoginResponse;
 import org.sku.zero.dto.response.NotificationSettingResponse;
 import org.sku.zero.exception.ErrorCode;
+import org.sku.zero.exception.InternalServerErrorException;
 import org.sku.zero.exception.NotFoundException;
 import org.sku.zero.exception.UnauthorizedException;
 import org.sku.zero.infrastructure.repository.MemberRepository;
@@ -154,30 +155,31 @@ public class MemberService {
 
     public String forgotPassword(String email) {
         String uuid = UUID.randomUUID().toString();
-        log.info(uuid);
         try {
+            Member member = findByEmail(email);
+            Long id = member.getId();
             mailService.sendPasswordResetLinkMail(email, uuid);
-            redisTemplate.opsForValue().set("forgot_password:" + email + ":" + uuid, uuid, Duration.ofHours(3));
+            redisTemplate.opsForValue().set("forgot_password:" + uuid, email, Duration.ofHours(3));
         } catch (MessagingException ex) {
             log.error("인증코드 전송에 실패했습니다");
+            throw new InternalServerErrorException(ErrorCode.SERVER_ERROR);
         }
         return uuid;
     }
 
-    public boolean validateUuid(String email, String uuid) {
-        String id = redisTemplate.opsForValue().get("forgot_password:" + email + ":" + uuid);
-        System.out.println(id);
-        return id != null && id.equals(uuid);
+    public String validateUuid(String uuid) {
+        String mail = redisTemplate.opsForValue().get("forgot_password:" + uuid);
+        return mail;
     }
 
     @Transactional
     public Boolean resetPassword(ResetPasswordRequest request) {
-        String email = request.email();
         String uuid = request.uuid();
-        if (validateUuid(request.email(), request.uuid())) {
-            Member member = findByEmail(request.email());
+        String email = validateUuid(request.uuid());
+        if (email != null) {
+            Member member = findByEmail(email);
             member.updatePassword(bCryptPasswordEncoder.encode(request.password()));
-            redisTemplate.delete("forgot_password:" + email + ":" + uuid);
+            redisTemplate.delete("forgot_password:" + uuid);
             return true;
         } else {
             return false;

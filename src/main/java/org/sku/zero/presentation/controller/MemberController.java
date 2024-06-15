@@ -86,13 +86,6 @@ public class MemberController {
                 .body(memberService.forgotPassword(email));
     }
 
-    @GetMapping("/validate-uuid/{email}/{uuid}")
-    public ResponseEntity<Boolean> validateUuid(@PathVariable String email, @PathVariable String uuid) {
-        Boolean result = memberService.validateUuid(email, uuid);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(result);
-    }
-
     @PatchMapping("/reset-password")
     public ResponseEntity<Boolean> resetPassword(@RequestBody ResetPasswordRequest request) {
         Boolean result = memberService.resetPassword(request);
