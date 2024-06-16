@@ -9,6 +9,7 @@ import java.util.List;
 @Getter
 @Builder
 public class ShopNewsResponse {
+    private Long id;
     private String title;
     private String content;
     private String nickname;
@@ -18,6 +19,7 @@ public class ShopNewsResponse {
 
     public static ShopNewsResponse toDto(ShopNews shopNews, List<String> imgUrls) {
         return ShopNewsResponse.builder()
+                .id(shopNews.getId())
                 .title(shopNews.getTitle())
                 .content(shopNews.getContent())
                 .nickname(shopNews.getMember().getNickname())

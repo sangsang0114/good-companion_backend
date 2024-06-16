@@ -1,10 +1,12 @@
 package org.sku.zero.application;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.sku.zero.domain.Member;
 import org.sku.zero.domain.Shop;
 import org.sku.zero.domain.ShopNews;
 import org.sku.zero.dto.request.AddShopNewsRequest;
+import org.sku.zero.dto.response.ShopManagerResponse;
 import org.sku.zero.dto.response.ShopMarkResponse;
 import org.sku.zero.dto.response.ShopNewsPageResponse;
 import org.sku.zero.dto.response.ShopNewsResponse;
@@ -30,6 +32,7 @@ public class ShopNewsService {
     private final MemberService memberService;
     private final ShopMarkService shopMarkService;
     private final AttachmentService attachmentService;
+    private final ShopManagerService shopManagerService;
 
     @Value("${server.url}")
     private String serverUrl;
@@ -71,5 +74,22 @@ public class ShopNewsService {
         attachmentService.uploadFile(files, "ShopNews", saved.getId());
 
         return saved.getId();
+    }
+
+    public ShopNewsPageResponse findMyManagingShopNews(Principal principal, Integer size, Integer page) {
+        List<ShopManagerResponse> shopManagers = shopManagerService.findByMember(principal);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ShopNews> shopNewsPage =
+                shopNewsRepository.findShopNewsByShopIdIn(
+                        shopManagers.stream().map(ShopManagerResponse::getShopId).toList(), pageable
+                );
+        return getShopNewsPageResponse(shopNewsPage);
+    }
+
+    @Transactional
+    public Boolean deleteShopNews(Long newsId) {
+        ShopNews shopNews = shopNewsRepository.findById(newsId).orElseThrow(EntityNotFoundException::new);
+        shopNewsRepository.delete(shopNews);
+        return true;
     }
 }

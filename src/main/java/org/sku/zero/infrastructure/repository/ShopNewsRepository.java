@@ -15,4 +15,6 @@ public interface ShopNewsRepository extends JpaRepository<ShopNews, Long> {
 
     @Query("SELECT n FROM ShopNews n JOIN FETCH n.shop JOIN FETCH n.member WHERE n.shop.id IN :shops")
     Page<ShopNews> findShopNewsByMarkedShops(List<String> shops, Pageable pageable);
+
+    Page<ShopNews> findShopNewsByShopIdIn(List<String> shopIds, Pageable pageable);
 }

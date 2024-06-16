@@ -50,6 +50,15 @@ public class ShopNewsController {
                 .body(id);
     }
 
+    @GetMapping("/list-my-shop-news")
+    public ResponseEntity<ShopNewsPageResponse> listMyManagingShopNews(
+            Principal principal,
+            @RequestParam(defaultValue = "0") Integer page) {
+        ShopNewsPageResponse response = shopNewsService.findMyManagingShopNews(principal, 10, page);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(response);
+    }
+
     @PostMapping("/test")
     public ResponseEntity<List<Long>> createTestNews(Principal principal) {
         List<Long> ids = new ArrayList<>();
@@ -58,5 +67,12 @@ public class ShopNewsController {
             ids.add(shopNewsService.addShopNews(addShopNewsRequest, principal));
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(ids);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> deleteNews(@PathVariable Long id) {
+        Boolean result = shopNewsService.deleteShopNews(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
     }
 }
