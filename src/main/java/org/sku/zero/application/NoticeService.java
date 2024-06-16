@@ -11,6 +11,7 @@ import org.sku.zero.exception.ErrorCode;
 import org.sku.zero.exception.NotFoundException;
 import org.sku.zero.infrastructure.repository.MemberRepository;
 import org.sku.zero.infrastructure.repository.NoticeRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +32,8 @@ public class NoticeService {
     private final AttachmentService attachmentService;
     private final MemberService memberService;
     private final ApplicationEventPublisher eventPublisher;
+    @Value("${server.url}")
+    private String serverUrl;
 
     public Page<Notice> listNotices(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -61,7 +64,7 @@ public class NoticeService {
         Member member = memberService.findById(notice.getMemberId());
         List<Long> attachmentIndices = attachmentService.getFileIndicesByServiceNameAndTarget
                 ("Notice", notice.getId());
-        List<String> urls = attachmentIndices.stream().map(index -> "http://localhost:8080/api/v1/attachment/" + index).toList();
+        List<String> urls = attachmentIndices.stream().map(index -> serverUrl + "/api/v1/attachment/" + index).toList();
         NoticeDetailResponse response = NoticeDetailResponse.toDto(member, notice, urls);
         return response;
     }
@@ -74,7 +77,7 @@ public class NoticeService {
 
         if (noticeRequest.deletedFiles() != null && !noticeRequest.deletedFiles().isEmpty()) {
             List<Long> attachmentIds = noticeRequest.deletedFiles().stream()
-                    .map(deletedFile -> Long.parseLong(deletedFile.replaceAll("http://localhost:8080/api/v1/attachment/", "")))
+                    .map(deletedFile -> Long.parseLong(deletedFile.replaceAll(serverUrl + "/api/v1/attachment/", "")))
                     .toList();
 
             for (Long attachmentId : attachmentIds) {
