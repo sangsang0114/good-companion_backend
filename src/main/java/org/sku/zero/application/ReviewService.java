@@ -61,7 +61,7 @@ public class ReviewService {
     public List<ReviewResponse> getReviewByShopIdAndMember(String shopId, Principal principal) {
         Shop shop = shopService.getShopById(shopId);
         Member member = memberService.findByEmail(principal.getName());
-        List<Review> reviews = reviewRepository.findReviewsByShopAndMember(shop, member);
+        List<Review> reviews = reviewRepository.findReviewsByShopAndMemberOrderByIdDesc(shop, member);
         return getReviewResponses(reviews);
     }
 

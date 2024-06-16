@@ -11,10 +11,12 @@ import java.util.List;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    @Query("SELECT r FROM Review r JOIN FETCH r.member WHERE r.shop = :shop")
+    @Query("SELECT r FROM Review r JOIN FETCH r.member WHERE r.shop = :shop ORDER BY r.id DESC")
     List<Review> findReviewsByShop(Shop shop);
 
+    @Query("SELECT r FROM Review r JOIN FETCH r.member WHERE r.shop = :shop ORDER BY r.id DESC LIMIT 3")
     List<Review> findTop3ByShopOrderByIdDesc(Shop shop);
 
-    List<Review> findReviewsByShopAndMember(Shop shop, Member member);
+    @Query("SELECT r FROM Review r JOIN FETCH r.member WHERE r.shop = :shop AND r.member = :member ORDER BY r.id DESC")
+    List<Review> findReviewsByShopAndMemberOrderByIdDesc(Shop shop, Member member);
 }
