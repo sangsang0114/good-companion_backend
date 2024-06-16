@@ -60,7 +60,7 @@ public class FcmService {
                                 .build()
                         )
                         .data(FcmMessageDto.Data.builder()
-                                .url(dto.getClickAction())
+                                .url(dto.getUrl()) // URL 필드 사용
                                 .build()
                         )
                         .build()

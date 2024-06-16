@@ -35,6 +35,9 @@ public class NoticeService {
     @Value("${server.url}")
     private String serverUrl;
 
+    @Value("${web.url}")
+    private String webUrl;
+
     public Page<Notice> listNotices(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Notice> notices = noticeRepository.findAllByIsAvailableOrderByIdDesc(pageable, 1);
@@ -50,7 +53,8 @@ public class NoticeService {
         attachmentService.uploadFile(files, "Notice", notice.getId());
         
         if(request.isImportant()){
-            eventPublisher.publishEvent(new NoticeAddedEvent(this, request.title(), null));
+            eventPublisher.publishEvent(new NoticeAddedEvent(this, request.title(), webUrl + "/NoticeDetail?id=" + notice.getId()));
+
         }
         return notice.getId();
     }

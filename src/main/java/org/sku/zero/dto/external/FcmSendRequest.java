@@ -10,6 +10,5 @@ public class FcmSendRequest {
     private String title;
     private String body;
     private String imageUrl;
-    private String clickAction;
     private String url;
 }

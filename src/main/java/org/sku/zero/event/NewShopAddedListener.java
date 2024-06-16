@@ -46,7 +46,7 @@ public class NewShopAddedListener implements ApplicationListener<NewShopAddedEve
                     .title("새로운 가게가 추가되었어요")
                     .body(event.getShop().getName() + "\n" + event.getShop().getAddress())
                     .imageUrl(event.getFirstImageUrl())
-                    .clickAction(webUrl + "/detail/" + event.getShop().getId())
+                    .url(webUrl + "/detail/" + event.getShop().getId())
                     .build();
             try {
                 fcmService.sendMessageTo(fcmRequest);
