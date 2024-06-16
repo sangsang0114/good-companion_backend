@@ -3,6 +3,7 @@ package org.sku.zero.dto.response;
 import lombok.Builder;
 import lombok.Getter;
 import org.sku.zero.domain.ShopNews;
+import org.sku.zero.util.DatetimeUtil;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class ShopNewsResponse {
     private String shopId;
     private String shopName;
     private List<String> imgUrls;
+    private String createdAt;
 
     public static ShopNewsResponse toDto(ShopNews shopNews, List<String> imgUrls) {
         return ShopNewsResponse.builder()
@@ -26,6 +28,7 @@ public class ShopNewsResponse {
                 .shopId(shopNews.getShopId())
                 .shopName(shopNews.getShop().getName())
                 .imgUrls(imgUrls)
+                .createdAt(DatetimeUtil.formatDateTime(shopNews.getCreatedAt()))
                 .build();
     }
 }

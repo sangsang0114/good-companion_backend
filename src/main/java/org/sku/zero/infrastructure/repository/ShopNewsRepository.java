@@ -10,10 +10,10 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ShopNewsRepository extends JpaRepository<ShopNews, Long> {
-    @Query("SELECT n FROM ShopNews n JOIN FETCH n.shop JOIN FETCH n.member WHERE n.shop = :shop")
+    @Query("SELECT n FROM ShopNews n JOIN FETCH n.shop JOIN FETCH n.member WHERE n.shop = :shop ORDER BY n.id DESC")
     Page<ShopNews> findShopNewsByShop(Shop shop, Pageable pageable);
 
-    @Query("SELECT n FROM ShopNews n JOIN FETCH n.shop JOIN FETCH n.member WHERE n.shop.id IN :shops")
+    @Query("SELECT n FROM ShopNews n JOIN FETCH n.shop JOIN FETCH n.member WHERE n.shop.id IN :shops ORDER BY n.id DESC")
     Page<ShopNews> findShopNewsByMarkedShops(List<String> shops, Pageable pageable);
 
     Page<ShopNews> findShopNewsByShopIdIn(List<String> shopIds, Pageable pageable);
