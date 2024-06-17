@@ -2,12 +2,15 @@ package org.sku.zero.application;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.sku.zero.domain.Member;
-import org.sku.zero.domain.RegistrationProposal;
+import org.sku.zero.domain.*;
+import org.sku.zero.dto.external.GeoCoderResultDto;
+import org.sku.zero.dto.request.AcceptProposalRequest;
 import org.sku.zero.dto.request.AddRegistrationProposalRequest;
+import org.sku.zero.dto.request.RejectProposalRequest;
 import org.sku.zero.dto.response.ProposalDetailResponse;
 import org.sku.zero.exception.ErrorCode;
 import org.sku.zero.exception.NotFoundException;
+import org.sku.zero.infrastructure.repository.IdGeneratorRepository;
 import org.sku.zero.infrastructure.repository.RegistrationProposalRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +27,9 @@ import java.util.List;
 public class RegistrationProposalService {
     private final RegistrationProposalRepository registrationProposalRepository;
     private final MemberService memberService;
+    private final ShopService shopService;
+    private final IdGeneratorRepository idGeneratorRepository;
+    private final ShopLocationService shopLocationService;
 
     @Transactional(readOnly = true)
     public void listProposals(){
@@ -40,6 +46,7 @@ public class RegistrationProposalService {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.PROPOSAL_NOT_FOUND));
         return ProposalDetailResponse.toDto(proposal, proposal.getMember());
     }
+
     public Long addProposal(AddRegistrationProposalRequest request, Principal principal) {
         Member member = memberService.findByEmail(principal.getName());
         RegistrationProposal registrationProposal = registrationProposalRepository.save(
@@ -48,20 +55,33 @@ public class RegistrationProposalService {
         return registrationProposal.getId();
     }
 
-    public Long approveProposal(Long proposalId) {
-        RegistrationProposal registrationProposal = registrationProposalRepository.findById(proposalId)
+    public Long approveProposal(AcceptProposalRequest request) {
+        RegistrationProposal registrationProposal = registrationProposalRepository.findById(request.id())
                 .orElseThrow(EntityNotFoundException::new);
+        IdGenerator idGenerator = idGeneratorRepository.findById(1L).orElseThrow(EntityNotFoundException::new);
+        String id = idGenerator.getGeneratedId().toString();
+        idGenerator.generateNewId();
+
+        Shop shop = shopService.save(request.toShopEntity(id, registrationProposal));
+        GeoCoderResultDto resultDto = shopLocationService.getCoordinateAndRegionId(registrationProposal.getShopAddress());
+        ShopLocation shopLocation = shopLocationService.save(resultDto.toEntity(id));
+
+        registrationProposal.editMemo(request.memo());
         registrationProposal.approve();
-        return proposalId;
+
+        return 0L;
     }
 
-    public Long rejectProposal(Long proposalId) {
-        RegistrationProposal registrationProposal = registrationProposalRepository.findById(proposalId)
+    public Long rejectProposal(RejectProposalRequest request) {
+        RegistrationProposal registrationProposal = registrationProposalRepository.findById(request.id())
                 .orElseThrow(EntityNotFoundException::new);
+
+        registrationProposal.editMemo(request.memo());
         registrationProposal.reject();
-        return proposalId;
+        return 0L;
     }
 
+    @Transactional(readOnly = true)
     public Page<RegistrationProposal> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<RegistrationProposal> registrationProposals = registrationProposalRepository.findAll(pageable);

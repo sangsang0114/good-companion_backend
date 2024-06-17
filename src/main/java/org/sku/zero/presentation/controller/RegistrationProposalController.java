@@ -3,7 +3,9 @@ package org.sku.zero.presentation.controller;
 import lombok.RequiredArgsConstructor;
 import org.sku.zero.application.RegistrationProposalService;
 import org.sku.zero.domain.RegistrationProposal;
+import org.sku.zero.dto.request.AcceptProposalRequest;
 import org.sku.zero.dto.request.AddRegistrationProposalRequest;
+import org.sku.zero.dto.request.RejectProposalRequest;
 import org.sku.zero.dto.response.ListProposalResponse;
 import org.sku.zero.dto.response.ProposalDetailResponse;
 import org.sku.zero.dto.response.ProposalPageResponse;
@@ -49,17 +51,17 @@ public class RegistrationProposalController {
     }
 
     //승인
-    @PostMapping("/{id}/approval")
-    public ResponseEntity<Long> approveProposal(@PathVariable Long id) {
-        Long targetId = registrationProposalService.approveProposal(id);
+    @PostMapping("/approval")
+    public ResponseEntity<Long> approveProposal(@RequestBody AcceptProposalRequest request) {
+        Long targetId = registrationProposalService.approveProposal(request);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(targetId);
     }
 
     //반려
-    @PostMapping("/{id}/reject")
-    public ResponseEntity<Long> rejectProposal(@PathVariable Long id) {
-        Long targetId = registrationProposalService.rejectProposal(id);
+    @PostMapping("/reject")
+    public ResponseEntity<Long> rejectProposal(@RequestBody RejectProposalRequest request) {
+        Long targetId = registrationProposalService.rejectProposal(request);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(targetId);
     }

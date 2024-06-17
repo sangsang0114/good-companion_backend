@@ -5,8 +5,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sku.zero.domain.enums.ProposalStatus;
 import org.hibernate.annotations.DynamicInsert;
+import org.sku.zero.domain.enums.ProposalStatus;
 
 @Entity
 @Table(name = "registration_proposal")
@@ -54,6 +54,9 @@ public class RegistrationProposal extends BaseTime {
     @Enumerated(EnumType.STRING)
     private ProposalStatus status;
 
+    @Column(name = "memo")
+    private String memo;
+
     @Builder
     public RegistrationProposal(Long memberId, String shopName, String shopAddress,
                                 String shopPhone, String businessHours, String info,
@@ -75,5 +78,9 @@ public class RegistrationProposal extends BaseTime {
 
     public void reject() {
         this.status = ProposalStatus.REJECTED;
+    }
+
+    public void editMemo(String memo) {
+        this.memo = memo;
     }
 }
