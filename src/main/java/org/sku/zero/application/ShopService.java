@@ -56,8 +56,9 @@ public class ShopService {
     private final String RETURN_TYPE = "json";
     private final String SERVICE_NAME = "ListPriceModelStoreService";
     private final ShopLocationRepository shopLocationRepository;
-    private final String DOMAIN = "http://localhost:8080/api/v1/attachment/";
+
     @Value("${server.url}")
+    private String serverUrl;
 
     public List<ListPriceStoreApiResponseDto.ListPriceStoreApiInfo> loadShopInfo() {
         int startIndex = 1;
@@ -102,10 +103,28 @@ public class ShopService {
                 return "";
             return String.format("%s - %s", startTime, endTime);
         } else {
-            if (info.contains("24시"))
-                return String.format("00:00 - 24:00");
-            else
-                return "";
+            String extendedRegex = "((오전|오후)?(\\d{1,2})시\\s*(\\d{1,2}분)?)\\s*[-~]\\s*((오전|오후)?(\\d{1,2})시\\s*(\\d{1,2}분)?)";
+            Pattern extendedPattern = Pattern.compile(extendedRegex);
+            Matcher extendedMatcher = extendedPattern.matcher(info);
+
+            if (extendedMatcher.find()) {
+                String startPeriod = extendedMatcher.group(2);
+                String startHour = extendedMatcher.group(3);
+                String startMinute = extendedMatcher.group(4);
+                String endPeriod = extendedMatcher.group(6);
+                String endHour = extendedMatcher.group(7);
+                String endMinute = extendedMatcher.group(8);
+
+                String startTime = convertTo24h(startPeriod, startHour, startMinute);
+                String endTime = convertTo24h(endPeriod, endHour, endMinute);
+
+                return String.format("%s - %s", startTime, endTime);
+            } else {
+                if (info.contains("24시"))
+                    return "00:00 - 24:00";
+                else
+                    return "";
+            }
         }
     }
 
@@ -139,6 +158,19 @@ public class ShopService {
             return hour + ":" + parts[1];
         }
         return time;
+    }
+
+    private String convertTo24h(String period, String hour, String minute) {
+        int h = Integer.parseInt(hour);
+        int m = (minute != null) ? Integer.parseInt(minute.replace("분", "")) : 0;
+
+        if ("오후".equals(period) && h != 12) {
+            h += 12;
+        } else if ("오전".equals(period) && h == 12) {
+            h = 0;
+        }
+
+        return String.format("%02d:%02d", h, m);
     }
 
     @Transactional
