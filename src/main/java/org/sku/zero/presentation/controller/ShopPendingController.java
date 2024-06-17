@@ -1,8 +1,11 @@
 package org.sku.zero.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.datafaker.providers.base.Bool;
 import org.sku.zero.application.ShopPendingService;
 import org.sku.zero.domain.ShopPending;
+import org.sku.zero.dto.request.AcceptShopPendingRequest;
+import org.sku.zero.dto.request.RejectShopPendingRequest;
 import org.sku.zero.dto.response.ShopPendingPageResponse;
 import org.sku.zero.dto.response.ShopPendingResponse;
 import org.sku.zero.exception.ErrorCode;
@@ -11,10 +14,7 @@ import org.sku.zero.infrastructure.repository.ShopPendingRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -40,5 +40,19 @@ public class ShopPendingController {
     public ResponseEntity<ShopPending> findPendingById(@PathVariable String id) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(shopPendingRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.SHOP_NOT_FOUND)));
+    }
+
+    @PostMapping("/accept")
+    public ResponseEntity<Boolean> acceptShopPending(@RequestBody AcceptShopPendingRequest request) {
+        Boolean result = shopPendingService.acceptShopPending(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(result);
+    }
+
+    @PostMapping("/reject")
+    public ResponseEntity<Boolean> rejectShopPending(@RequestBody RejectShopPendingRequest request) {
+        Boolean result = shopPendingService.rejectShopPending(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
     }
 }

@@ -25,6 +25,7 @@ public class ShopPending extends BaseTime implements Persistable<String> {
     @Column(name = "address", nullable = false)
     private String address;
 
+
     @Column(name = "sector_id")
     private String shopSector;
 
@@ -46,6 +47,9 @@ public class ShopPending extends BaseTime implements Persistable<String> {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "memo")
+    private String memo;
+
     @Override
     public boolean isNew() {
         return this.getCreatedAt() == null;
@@ -63,5 +67,13 @@ public class ShopPending extends BaseTime implements Persistable<String> {
         this.phone = phone;
         this.imgUrlPublic = imgUrlPublic;
         this.errorInfo = errorInfo;
+    }
+
+    public void editMemo(String memo) {
+        this.memo = memo;
+    }
+
+    public void updateStatus(String status) {
+        this.status = status;
     }
 }

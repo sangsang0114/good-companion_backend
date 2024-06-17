@@ -19,6 +19,7 @@ public class ShopPendingResponse {
     private String status;
     private String createdAt;
     private String updatedAt;
+    private String memo;
 
     public static ShopPendingResponse toDto(ShopPending shopPending) {
         return ShopPendingResponse.builder()
@@ -32,6 +33,8 @@ public class ShopPendingResponse {
                 .status(shopPending.getStatus())
                 .createdAt(DatetimeUtil.formatDate(shopPending.getCreatedAt()))
                 .updatedAt(DatetimeUtil.formatDate(shopPending.getUpdatedAt()))
+                .errorInfo(shopPending.getErrorInfo())
+                .memo(shopPending.getMemo())
                 .build();
     }
 }
