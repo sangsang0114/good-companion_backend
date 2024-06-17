@@ -103,17 +103,17 @@ public class ShopService {
                 return "";
             return String.format("%s - %s", startTime, endTime);
         } else {
-            String extendedRegex = "((오전|오후)?(\\d{1,2})시\\s*(\\d{1,2}분)?)\\s*[-~]\\s*((오전|오후)?(\\d{1,2})시\\s*(\\d{1,2}분)?)";
+            String extendedRegex = "영업시간\\s*:\\s*(오전|오후)?\\s*(\\d{1,2})시\\s*(\\d{1,2}분)?\\s*[-~]\\s*(오전|오후)?\\s*(\\d{1,2})시\\s*(\\d{1,2}분)?";
             Pattern extendedPattern = Pattern.compile(extendedRegex);
             Matcher extendedMatcher = extendedPattern.matcher(info);
 
             if (extendedMatcher.find()) {
-                String startPeriod = extendedMatcher.group(2);
-                String startHour = extendedMatcher.group(3);
-                String startMinute = extendedMatcher.group(4);
-                String endPeriod = extendedMatcher.group(6);
-                String endHour = extendedMatcher.group(7);
-                String endMinute = extendedMatcher.group(8);
+                String startPeriod = extendedMatcher.group(1);
+                String startHour = extendedMatcher.group(2);
+                String startMinute = extendedMatcher.group(3);
+                String endPeriod = extendedMatcher.group(4);
+                String endHour = extendedMatcher.group(5);
+                String endMinute = extendedMatcher.group(6);
 
                 String startTime = convertTo24h(startPeriod, startHour, startMinute);
                 String endTime = convertTo24h(endPeriod, endHour, endMinute);
