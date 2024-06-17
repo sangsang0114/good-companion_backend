@@ -57,6 +57,7 @@ public class ShopService {
     private final String SERVICE_NAME = "ListPriceModelStoreService";
     private final ShopLocationRepository shopLocationRepository;
     private final String DOMAIN = "http://localhost:8080/api/v1/attachment/";
+    @Value("${server.url}")
 
     public List<ListPriceStoreApiResponseDto.ListPriceStoreApiInfo> loadShopInfo() {
         int startIndex = 1;
@@ -151,7 +152,7 @@ public class ShopService {
                 Double.valueOf(latitude), Double.valueOf(longitude), Double.parseDouble(radius)).stream().map(response -> {
             if (response.getImgUrl() == null) {
                 List<Long> indicies = attachmentService.getFileIndicesByServiceNameAndTarget("Shop", Long.parseLong(response.getId()));
-                if (!indicies.isEmpty()) response.setImgUrl("http://localhost:8080/api/v1/attachment/" + indicies.get(0));
+                if (!indicies.isEmpty()) response.setImgUrl(serverUrl + "/api/v1/attachment/" + indicies.get(0));
             }
             return response;
         }).toList();
@@ -201,7 +202,7 @@ public class ShopService {
         //프로그램의 가게 + 공공데이터에 추가로 넣은 이미지
         List<Long> attachmentIds = attachmentService.getFileIndicesByServiceNameAndTarget(
                 "Shop", Long.parseLong(shopId));
-        attachmentIds.forEach(attachmentId -> imgUrls.add(DOMAIN + attachmentId));
+        attachmentIds.forEach(attachmentId -> imgUrls.add(serverUrl + "/api/v1/attachment/" + attachmentId));
 
         return ShopDetailResponse.toDto2(shop, sectorName, imgUrls);
     }
@@ -217,7 +218,7 @@ public class ShopService {
                 List<Long> indicies = attachmentService.getFileIndicesByServiceNameAndTarget("Shop", Long.parseLong(shop.getId()));
                 if (indicies.isEmpty()) return null;
                 Long id = indicies.get(0);
-                BestShopResponse bs = BestShopResponse.toDto(shop, "http://localhost:8080/api/v1/attachment/" + id);
+                BestShopResponse bs = BestShopResponse.toDto(shop, serverUrl + "/api/v1/attachment/" + id);
                 return bs;
             }
         }).toList();
@@ -232,7 +233,7 @@ public class ShopService {
                         Long index = attachmentService.getFileIndicesByServiceNameAndTarget
                                         ("Shop", Long.parseLong(shop.getId()))
                                 .get(0);
-                        imgUrl = "http://localhost:8080/api/v1/attachment/" + index;
+                        imgUrl = serverUrl + "/api/v1/attachment/" + index;
                     }
                     return DailyShop.builder()
                             .phone(shop.getPhone())
@@ -263,7 +264,7 @@ public class ShopService {
         shop.editBusinessHours(shopRequest.businessHours());
         if (shopRequest.deletedFiles() != null && !shopRequest.deletedFiles().isEmpty()) {
             List<Long> attachmentIds = shopRequest.deletedFiles().stream()
-                    .map(deletedFile -> Long.parseLong(deletedFile.replaceAll("http://localhost:8080/api/v1/attachment/", ""))).toList();
+                    .map(deletedFile -> Long.parseLong(deletedFile.replaceAll(serverUrl + "/api/v1/attachment/", ""))).toList();
 
             for (Long attachmentId : attachmentIds) {
                 attachmentService.removeAttachmentById(attachmentId);
