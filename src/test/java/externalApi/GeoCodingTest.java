@@ -1,12 +1,20 @@
 package externalApi;
 
-import org.example.dto.external.GeoCoderApiResponseDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sku.zero.dto.external.GeoCoderApiResponseDto;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -17,7 +25,19 @@ public class GeoCodingTest {
     private String TYPE = "ROAD";
     private String SERVICE = "address";
 
-    private String KEY = ApiKeys.GEOCODER_KEY;
+    @Value("${geocoder.key}")
+    private String KEY;
+
+    @DynamicPropertySource
+    static void dynamicProperties(DynamicPropertyRegistry registry) {
+        Resource resource = new ClassPathResource("application-API.yaml");
+        YamlPropertiesFactoryBean yamlFactory = new YamlPropertiesFactoryBean();
+        yamlFactory.setResources(resource);
+        Properties properties = yamlFactory.getObject();
+        if (properties != null) {
+            properties.forEach((key, value) -> registry.add((String) key, () -> value));
+        }
+    }
 
     private String getRequestUrl(String address) {
         return UriComponentsBuilder

@@ -122,3 +122,4 @@ fabric.properties
 
 /src/main/resources/application-API.yaml
 /src/main/resources/goodshopp-3ecf9-firebase-adminsdk-wcgi3-18a34e6aba.json
+/src/test/resources/application-API.yaml
