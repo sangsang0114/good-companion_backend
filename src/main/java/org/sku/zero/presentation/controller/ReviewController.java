@@ -2,8 +2,10 @@ package org.sku.zero.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.sku.zero.application.ReviewService;
+import org.sku.zero.domain.Review;
 import org.sku.zero.dto.request.AddReviewRequest;
 import org.sku.zero.dto.request.ModifyReviewRequest;
+import org.sku.zero.dto.response.MyReviewHistoryResponse;
 import org.sku.zero.dto.response.ReviewResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +45,13 @@ public class ReviewController {
     @GetMapping("/my-review")
     public ResponseEntity<List<ReviewResponse>> findReviewByShopIdAndMember(@RequestParam String shopId, Principal principal) {
         List<ReviewResponse> responses = reviewService.getReviewByShopIdAndMember(shopId, principal);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(responses);
+    }
+
+    @GetMapping("/my-review-history")
+    public ResponseEntity<List<MyReviewHistoryResponse>> findReviewByMemner(Principal principal){
+        List<MyReviewHistoryResponse> responses = reviewService.getReviewBYMember(principal);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(responses);
     }

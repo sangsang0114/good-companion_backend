@@ -19,4 +19,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("SELECT r FROM Review r JOIN FETCH r.member WHERE r.shop = :shop AND r.member = :member ORDER BY r.id DESC")
     List<Review> findReviewsByShopAndMemberOrderByIdDesc(Shop shop, Member member);
+
+    @Query("SELECT r FROM Review r JOIN FETCH r.member JOIN FETCH r.shop WHERE r.member = :member ORDER BY r.id DESC")
+    List<Review> findReviewsByMemberOrderByIdDesc(Member member);
 }

@@ -8,6 +8,7 @@ import org.sku.zero.domain.Review;
 import org.sku.zero.domain.Shop;
 import org.sku.zero.dto.request.AddReviewRequest;
 import org.sku.zero.dto.request.ModifyReviewRequest;
+import org.sku.zero.dto.response.MyReviewHistoryResponse;
 import org.sku.zero.dto.response.ReviewResponse;
 import org.sku.zero.exception.ErrorCode;
 import org.sku.zero.exception.NotFoundException;
@@ -116,5 +117,11 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId).orElseThrow(()-> new NotFoundException(ErrorCode.REVIEW_NOT_FOUND));
         reviewRepository.delete(review);
         return true;
+    }
+
+    public List<MyReviewHistoryResponse> getReviewBYMember(Principal principal) {
+        Member member = memberService.findByEmail(principal.getName());
+        List<Review> reviews = reviewRepository.findReviewsByMemberOrderByIdDesc(member);
+        return reviews.stream().map(MyReviewHistoryResponse::toDto).toList();
     }
 }
