@@ -61,7 +61,7 @@ public class Shop extends BaseTime implements Persistable<String> {
     private Integer isLocalFranchise = 0;
 
     @Column(name = "img_url_public")
-    public String imgUrlPublic;
+    private String imgUrlPublic;
 
     @Builder
     public Shop(String id, String name, String address, String shopSector,

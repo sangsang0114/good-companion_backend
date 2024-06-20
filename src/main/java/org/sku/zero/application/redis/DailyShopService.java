@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +18,7 @@ public class DailyShopService {
     private final RedisTemplate<String, DailyShop> redisTemplate;
 
     public void saveDailyShop(DailyShop dailyShop) {
-        redisTemplate.opsForValue().set("daily_shop:" + dailyShop.getShopId(), dailyShop);
+        redisTemplate.opsForValue().set("daily_shop:" + dailyShop.getShopId(), dailyShop, Duration.ofDays(1));
     }
 
     public void deleteAllDailyShops(){
