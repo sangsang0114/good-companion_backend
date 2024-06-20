@@ -3,6 +3,7 @@ package org.sku.zero.dto.response;
 import lombok.Builder;
 import lombok.Getter;
 import org.sku.zero.domain.Review;
+import org.sku.zero.util.DatetimeUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,7 +18,7 @@ public class ReviewResponse {
     private String comment;
     private Double score;
     private List<String> imgUrls;
-    private LocalDateTime createdAt;
+    private String createdAt;
 
     public static ReviewResponse toDto(Review review, List<String> imgUrls) {
         return ReviewResponse.builder()
@@ -27,7 +28,7 @@ public class ReviewResponse {
                 .memberNickname(review.getMember().getNickname())
                 .comment(review.getComment())
                 .score(review.getScore())
-                .createdAt(review.getCreatedAt())
+                .createdAt(DatetimeUtil.formatDateTime(review.getCreatedAt()))
                 .imgUrls(imgUrls)
                 .build();
     }
