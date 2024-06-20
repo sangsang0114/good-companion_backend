@@ -12,4 +12,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmail(String email);
 
     List<Member> findMembersByFcmTokenIsNotNull();
+
+    List<Member> findMembersByEmailFlagIs(Integer flag);
 }

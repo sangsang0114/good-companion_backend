@@ -58,7 +58,7 @@ public class MemberService {
         redisTemplate.opsForValue().set(
                 "refreshToken:email:" + email,
                 refreshToken,
-                Duration.ofHours(3));
+                Duration.ofDays(1));
         LoginResponse response = LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -86,7 +86,7 @@ public class MemberService {
             redisTemplate.opsForValue().set(
                     "refreshToken:email:" + email,
                     newRefreshToken,
-                    Duration.ofHours(3));
+                    Duration.ofDays(1));
         }
         return LoginResponse.builder()
                 .accessToken(newAccessToken)
@@ -124,6 +124,10 @@ public class MemberService {
 
     public List<Member> findMembersByFcmFlagIsTrue() {
         return memberRepository.findMembersByFcmTokenIsNotNull();
+    }
+
+    public List<Member> findMemberByEmailFlagIsTrue(){
+        return memberRepository.findMembersByEmailFlagIs(1);
     }
 
     public boolean checkDuplicateByNickname(String nickname) {

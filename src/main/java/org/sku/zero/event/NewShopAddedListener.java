@@ -3,7 +3,6 @@ package org.sku.zero.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sku.zero.application.FcmService;
-import org.sku.zero.application.MailService;
 import org.sku.zero.application.RegionMarkService;
 import org.sku.zero.application.redis.NewShopService;
 import org.sku.zero.domain.redis.NewShop;
@@ -20,9 +19,9 @@ import java.util.List;
 @Slf4j
 public class NewShopAddedListener implements ApplicationListener<NewShopAddedEvent> {
     private final NewShopService newShopService;
-    private final MailService mailService;
     private final FcmService fcmService;
     private final RegionMarkService regionMarkService;
+    private final String FCM_PUSH_TITLE = "새로운 가게가 추가되었어요";
 
     @Value("${web.url}")
     private String webUrl;
@@ -37,13 +36,14 @@ public class NewShopAddedListener implements ApplicationListener<NewShopAddedEve
                 .imgUrl(event.getFirstImageUrl())
                 .build();
         newShopService.saveNewShop(newShop);
+        if (event.isFromBatch()) return;
 
         List<String> fcmTokens = regionMarkService.getFcmTokensByRegionMark(event.getShop().getShopRegion());
 
         for (String token : fcmTokens) {
             FcmSendRequest fcmRequest = FcmSendRequest.builder()
                     .token(token)
-                    .title("새로운 가게가 추가되었어요")
+                    .title(FCM_PUSH_TITLE)
                     .body(event.getShop().getName() + "\n" + event.getShop().getAddress())
                     .imageUrl(event.getFirstImageUrl())
                     .url(webUrl + "/detail/" + event.getShop().getId())

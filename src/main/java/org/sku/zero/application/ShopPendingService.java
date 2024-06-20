@@ -66,7 +66,7 @@ public class ShopPendingService {
                         new BigDecimal(x)
                 )
         );
-        eventPublisher.publishEvent(new NewShopAddedEvent(this, shop, shopPending.getImgUrlPublic()));
+        eventPublisher.publishEvent(new NewShopAddedEvent(this, shop, shopPending.getImgUrlPublic(), false));
         shopPending.editMemo(request.memo());
         shopPending.updateStatus("ACCEPTED");
         return true;

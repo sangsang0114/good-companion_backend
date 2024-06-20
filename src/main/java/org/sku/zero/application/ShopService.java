@@ -175,7 +175,10 @@ public class ShopService {
 
     @Transactional
     public Shop save(Shop entity) {
-        return shopRepository.save(entity);
+        boolean fromBatch = true;
+        Shop savedShop = shopRepository.save(entity);
+        eventPublisher.publishEvent(new NewShopAddedEvent(this,savedShop,savedShop.getImgUrlPublic(),fromBatch));
+        return savedShop;
     }
 
     @Transactional(readOnly = true)
@@ -205,7 +208,8 @@ public class ShopService {
 
         shopLocationService.save(resultDto.toEntity(shopId));
 
-        eventPublisher.publishEvent(new NewShopAddedEvent(this, savedShop, firstImageUrl));
+        boolean fromBatch = false;
+        eventPublisher.publishEvent(new NewShopAddedEvent(this, savedShop, firstImageUrl,fromBatch));
     }
 
     @Transactional(readOnly = true)
