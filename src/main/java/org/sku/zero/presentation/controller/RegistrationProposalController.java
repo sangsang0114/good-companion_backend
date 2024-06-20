@@ -65,4 +65,12 @@ public class RegistrationProposalController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(targetId);
     }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<ListProposalResponse>> listProposals(Principal principal) {
+        List<ListProposalResponse> proposalResponses = registrationProposalService.findByMember(principal);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(proposalResponses);
+    }
 }

@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.sku.zero.domain.Member;
 import org.sku.zero.domain.RegistrationProposal;
+import org.sku.zero.util.DatetimeUtil;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +16,7 @@ public class ListProposalResponse {
     private String memberNickname;
     private String memberEmail;
     private String status;
-    private LocalDateTime createdAt;
+    private String createdAt;
 
 
     public static ListProposalResponse toDto(RegistrationProposal proposal, Member member) {
@@ -25,7 +26,7 @@ public class ListProposalResponse {
                 .memberNickname(member.getNickname())
                 .memberEmail(member.getEmail())
                 .status(proposal.getStatus().name())
-                .createdAt(proposal.getCreatedAt())
+                .createdAt(DatetimeUtil.formatDateTime(proposal.getCreatedAt()))
                 .build();
     }
 }

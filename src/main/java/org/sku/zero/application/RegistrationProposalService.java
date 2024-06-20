@@ -7,6 +7,7 @@ import org.sku.zero.dto.external.GeoCoderResultDto;
 import org.sku.zero.dto.request.AcceptProposalRequest;
 import org.sku.zero.dto.request.AddRegistrationProposalRequest;
 import org.sku.zero.dto.request.RejectProposalRequest;
+import org.sku.zero.dto.response.ListProposalResponse;
 import org.sku.zero.dto.response.ProposalDetailResponse;
 import org.sku.zero.exception.ErrorCode;
 import org.sku.zero.exception.NotFoundException;
@@ -86,5 +87,11 @@ public class RegistrationProposalService {
         Pageable pageable = PageRequest.of(page, size);
         Page<RegistrationProposal> registrationProposals = registrationProposalRepository.findAll(pageable);
         return registrationProposals;
+    }
+
+    public List<ListProposalResponse> findByMember(Principal principal) {
+        Member member = memberService.findByEmail(principal.getName());
+        List<RegistrationProposal> proposals = registrationProposalRepository.findRegistrationProposalsByMember(member);
+        return proposals.stream().map(proposal -> ListProposalResponse.toDto(proposal, member)).toList();
     }
 }
