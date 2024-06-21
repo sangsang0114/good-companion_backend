@@ -15,4 +15,7 @@ public interface ShopManagerRepository extends JpaRepository<ShopManager, Long> 
 
     @Query("SELECT sm FROM ShopManager sm JOIN FETCH sm.shop WHERE sm.member = :member")
     List<ShopManager> findByMember(Member member);
+
+    @Query("SELECT sm FROM ShopManager sm JOIN FETCH sm.member WHERE sm.shop = :shop")
+    List<ShopManager> findByShop(Shop shop);
 }

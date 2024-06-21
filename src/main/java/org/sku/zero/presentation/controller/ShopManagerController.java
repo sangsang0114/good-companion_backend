@@ -2,14 +2,12 @@ package org.sku.zero.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.sku.zero.application.ShopManagerService;
+import org.sku.zero.dto.request.ShopManagerRequest;
 import org.sku.zero.dto.response.ShopManagerResponse;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -34,5 +32,28 @@ public class ShopManagerController {
         if (principal == null) return ResponseEntity.status(HttpStatus.OK).body(List.of());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(shopManagerService.findByMember(principal));
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<ShopManagerResponse>> listShopManager(
+            @RequestParam(required = false) String shopId,
+            @RequestParam(required = false) Long memberId) {
+        List<ShopManagerResponse> responses = shopManagerService.findByShopOrMember(shopId, memberId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(responses);
+    }
+
+    @PostMapping("")
+    public ResponseEntity<Long> createShopManager(@RequestBody ShopManagerRequest shopManagerRequest) {
+        Long savedId = shopManagerService.addShopManager(shopManagerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(savedId);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> deleteShopManager(@PathVariable Long id) {
+        Boolean result = shopManagerService.removeShopManager(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
     }
 }
