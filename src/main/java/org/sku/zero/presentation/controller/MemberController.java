@@ -144,4 +144,11 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(result);
     }
+
+    @PatchMapping("/update-fcm")
+    public ResponseEntity<Boolean> updateFcm(@RequestBody ModifyFcmTokenRequest request, Principal principal){
+        Boolean result = memberService.updateFcm(request, principal);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
+    }
 }

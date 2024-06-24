@@ -236,4 +236,11 @@ public class MemberService {
         member.updateFcmToken(request.fcmToken());
         return true;
     }
+
+    @Transactional
+    public Boolean updateFcm(ModifyFcmTokenRequest request, Principal principal) {
+        Member member = findByEmail(principal.getName());
+        member.updateFcmToken(request.fcmToken());
+        return true;
+    }
 }
