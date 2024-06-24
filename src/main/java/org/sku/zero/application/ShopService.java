@@ -9,9 +9,7 @@ import org.sku.zero.dto.external.GeoCoderResultDto;
 import org.sku.zero.dto.external.ListPriceStoreApiResponseDto;
 import org.sku.zero.dto.request.AddShopRequest;
 import org.sku.zero.dto.request.ModifyShopRequest;
-import org.sku.zero.dto.response.BestShopResponse;
-import org.sku.zero.dto.response.NearbyShopInfoResponse;
-import org.sku.zero.dto.response.ShopDetailResponse;
+import org.sku.zero.dto.response.*;
 import org.sku.zero.event.NewShopAddedEvent;
 import org.sku.zero.exception.BadRequestException;
 import org.sku.zero.exception.ErrorCode;
@@ -333,5 +331,17 @@ public class ShopService {
         Shop shop = getShopById(shopId);
         shop.reRegisterShop();
         return true;
+    }
+
+    public List<ShopCountsByRegionResponse> getShopCountByRegion() {
+        return shopRepository.countShopsByRegion();
+    }
+
+    public List<ShopCountsBySectorResponse> getShopCountBySector() {
+        return shopRepository.countShopsBySector();
+    }
+
+    public List<ShopCountsBySectorResponse> getShopCountBySectorOfRegion(String regionId) {
+        return shopRepository.countsShopsBySectorOfRegion(regionId);
     }
 }

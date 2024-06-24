@@ -105,4 +105,18 @@ public class ShopController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(result);
     }
+
+    @GetMapping("/shop-counts-region")
+    public List<ShopCountsByRegionResponse> getShopCountsByRegion() {
+        return shopService.getShopCountByRegion();
+    }
+
+    @GetMapping("/shop-counts-sector")
+    public List<ShopCountsBySectorResponse> getShopCountsBySector() {
+        return shopService.getShopCountBySector();
+    }
+    @GetMapping("/shop-counts-sector-region")
+    public List<ShopCountsBySectorResponse> getShopCountsBySectorOfRegion(@RequestParam String regionId) {
+        return shopService.getShopCountBySectorOfRegion(regionId);
+    }
 }
