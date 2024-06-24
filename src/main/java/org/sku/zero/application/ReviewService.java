@@ -94,7 +94,7 @@ public class ReviewService {
 
         if (requestDto.deletedFiles() != null && !requestDto.deletedFiles().isEmpty()) {
             List<Long> attachmentIds = requestDto.deletedFiles().stream()
-                    .map((deletedFile -> Long.parseLong(deletedFile.replaceAll("http://localhost:8080/api/v1/attachment/", ""))
+                    .map((deletedFile -> Long.parseLong(deletedFile.replaceAll(serverUrl + "/api/v1/attachment/", ""))
                     )).toList();
 
             for (Long attachmentId : attachmentIds) {
