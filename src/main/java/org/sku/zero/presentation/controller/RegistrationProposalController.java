@@ -66,6 +66,13 @@ public class RegistrationProposalController {
                 .body(targetId);
     }
 
+    @PostMapping("/approval-unregistered")
+    public ResponseEntity<Boolean> approveProposalUnregistered(@RequestBody RejectProposalRequest request) {
+        Boolean result = registrationProposalService.approveProposalWithoutRegister(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(result);
+    }
+
     @GetMapping("/list")
     public ResponseEntity<List<ListProposalResponse>> listProposals(Principal principal) {
         List<ListProposalResponse> proposalResponses = registrationProposalService.findByMember(principal);

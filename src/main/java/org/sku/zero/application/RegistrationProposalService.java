@@ -73,6 +73,14 @@ public class RegistrationProposalService {
         return 0L;
     }
 
+    public Boolean approveProposalWithoutRegister(RejectProposalRequest request) {
+        RegistrationProposal proposal = registrationProposalRepository.findById(request.id())
+                .orElseThrow(EntityNotFoundException::new);
+        proposal.editMemo(request.memo());
+        proposal.approve();
+        return true;
+    }
+
     public Long rejectProposal(RejectProposalRequest request) {
         RegistrationProposal registrationProposal = registrationProposalRepository.findById(request.id())
                 .orElseThrow(EntityNotFoundException::new);
