@@ -231,10 +231,11 @@
                                                                                     style="border-radius: 3px;"
                                                                                     bgcolor="#17bef7">
                                                                                     <a class="button raised"
-                                                                                       th:href="${shop.shopId}"
+                                                                                       th:href="@{https://good-companion.shop/detail/{shopId}(shopId=${shop.shopId})}"
                                                                                        target="_blank"
                                                                                        style="font-size: 14px; line-height: 14px; font-weight: 500; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; border-radius: 3px; padding: 10px 25px; border: 1px solid #17bef7; display: inline-block;">
-                                                                                        가게 정보 보기</a>
+                                                                                        가게 정보 보기
+                                                                                    </a>
                                                                                 </td>
                                                                             </tr>
                                                                         </table>
