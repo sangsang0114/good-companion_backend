@@ -21,6 +21,7 @@ public class ProposalDetailResponse {
     private String sectorId;
     private String zipcode;
     private String status;
+    private String memo;
 
     public static ProposalDetailResponse toDto(RegistrationProposal proposal, Member member) {
         return ProposalDetailResponse.builder()
@@ -37,6 +38,7 @@ public class ProposalDetailResponse {
                 .sectorId(proposal.getSectorId())
                 .zipcode(proposal.getZipcode())
                 .status(proposal.getStatus().name())
+                .memo(proposal.getMemo())
                 .build();
     }
 }
