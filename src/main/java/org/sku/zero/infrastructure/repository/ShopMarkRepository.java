@@ -5,6 +5,7 @@ import org.sku.zero.domain.Shop;
 import org.sku.zero.domain.ShopMark;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,4 +16,7 @@ public interface ShopMarkRepository extends JpaRepository<ShopMark, Long> {
     List<ShopMark> findShopMarksByMember(Member member);
 
     Optional<ShopMark> findShopMarkByMemberAndShop(Member member, Shop shop);
+
+    @Query("SELECT mark FROM ShopMark mark JOIN FETCH mark.member WHERE mark.shopId =:shopId")
+    List<ShopMark> findShopMarkedMemberByShop(@Param("shopId") String shopId);
 }

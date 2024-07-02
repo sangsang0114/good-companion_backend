@@ -18,6 +18,7 @@ public interface ShopLocationRepository extends JpaRepository<ShopLocation, Stri
             "JOIN sl.shop " +
             "WHERE 6371 * 2 * ASIN(SQRT(POWER(SIN((sl.latitude - :lat) * PI() / 180 / 2), 2) + " +
             "COS(:lat * PI() / 180) * COS(sl.latitude * PI() / 180) * " +
-            "POWER(SIN((sl.longitude - :lng) * PI() / 180 / 2), 2))) <= :radius")
+            "POWER(SIN((sl.longitude - :lng) * PI() / 180 / 2), 2))) <= :radius " +
+            "AND sl.shop.isAvailable=1")
     List<NearbyShopInfoResponse> findNearbyShopLocations(@Param("lat") Double lat, @Param("lng") Double lng, @Param("radius") double radius);
 }

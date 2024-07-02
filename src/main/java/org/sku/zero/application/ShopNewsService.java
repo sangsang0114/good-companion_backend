@@ -10,8 +10,10 @@ import org.sku.zero.dto.response.ShopManagerResponse;
 import org.sku.zero.dto.response.ShopMarkResponse;
 import org.sku.zero.dto.response.ShopNewsPageResponse;
 import org.sku.zero.dto.response.ShopNewsResponse;
+import org.sku.zero.event.NewsAddedEvent;
 import org.sku.zero.infrastructure.repository.ShopNewsRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +35,7 @@ public class ShopNewsService {
     private final ShopMarkService shopMarkService;
     private final AttachmentService attachmentService;
     private final ShopManagerService shopManagerService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${server.url}")
     private String serverUrl;
@@ -70,9 +73,10 @@ public class ShopNewsService {
     public Long addShopNews(AddShopNewsRequest addShopNewsRequest, Principal principal) {
         Member member = memberService.findByEmail(principal.getName());
         ShopNews saved = shopNewsRepository.save(addShopNewsRequest.toEntity(member));
+        Shop shop = shopService.getShopById(saved.getShopId());
         List<MultipartFile> files = addShopNewsRequest.files();
         attachmentService.uploadFile(files, "ShopNews", saved.getId());
-
+        eventPublisher.publishEvent(new NewsAddedEvent(this, saved, shop));
         return saved.getId();
     }
 

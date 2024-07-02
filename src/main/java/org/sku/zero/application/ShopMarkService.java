@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,4 +54,15 @@ public class ShopMarkService {
             return true;
         }
     }
+
+    public List<String> getFcmTokensByShopMark(String shopId) {
+        List<ShopMark> shopMarks = shopMarkRepository.findShopMarkedMemberByShop(shopId);
+        System.out.println(shopMarks.size());
+        return shopMarks.stream()
+                .map(ShopMark::getMember)
+                .filter(member -> member.getFcmFlag() == 1)
+                .map(Member::getFcmToken)
+                .collect(Collectors.toList());
+    }
+
 }
